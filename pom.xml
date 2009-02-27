@@ -42,6 +42,16 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<version>3.1</version>
 		</dependency>
 	</dependencies>
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <url>http://nebbiolo:8081/nexus/content/repositories/exm/</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <url>http://nebbiolo:8081/nexus/content/repositories/exm-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
