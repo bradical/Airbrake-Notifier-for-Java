@@ -5,10 +5,10 @@ import java.util.*;
 public class HoptoadNotice {
 
 	private String apiKey;
-	
+
 	private String errorMessage;
-	
-	private String[] backtrace;
+
+	private String[] backtrace = new String[] { "backtrace is null" };
 
 	private Map environment;
 
@@ -47,5 +47,9 @@ public class HoptoadNotice {
 
 	public Map session() {
 		return session;
+	}
+
+	public String errorClass() {
+		return getClass().getSimpleName();
 	}
 }

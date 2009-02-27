@@ -8,7 +8,7 @@ public class HoptoadNoticeBuilder {
 
 	private String errorMessage;
 
-	private String[] backtrace;
+	private String[] backtrace = new String[] { "backtrace is nil" };
 
 	private Map environment;
 
@@ -34,10 +34,10 @@ public class HoptoadNoticeBuilder {
 	public HoptoadNoticeBuilder(String apiKey, Exception exception) {
 		apiKey(apiKey);
 		errorMessage(exception.getMessage());
-		backtrace(toBbacktrace(exception.getStackTrace()));
+		backtrace(toBacktrace(exception.getStackTrace()));
 	}
 
-	public static String[] toBbacktrace(StackTraceElement[] stackTrace) {
+	public static String[] toBacktrace(StackTraceElement[] stackTrace) {
 		List<String> backtrace = new LinkedList<String>();
 		for (StackTraceElement stackTraceElement : stackTrace) {
 			backtrace.add(backtrace(stackTraceElement));

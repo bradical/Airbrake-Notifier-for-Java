@@ -1,15 +1,15 @@
 package code.lucamarrocco.hoptoad;
 
-import static java.util.Arrays.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.io.*;
 import java.util.*;
 
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-	protected static final String API_KEY = "fb8e12cd3f6747078c19f53cfe755197";
+	protected static final String API_KEY = "7274e956946585ce31dda87801a0de56";
 	protected static final String ERROR_MESSAGE = "undefined method `password' for nil:NilClass";
 	protected static final String[] BACKTRACE = new String[0];
 	protected static final Map REQUEST = new HashMap();
@@ -103,7 +103,7 @@ public class HoptoadNotifierTest {
 	@Test
 	public void testHoptoadBuilderBacktrace() {
 		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		String[] backtrace = HoptoadNoticeBuilder.toBbacktrace(EXCEPTION.getStackTrace());
+		String[] backtrace = HoptoadNoticeBuilder.toBacktrace(EXCEPTION.getStackTrace());
 
 		assertThat(backtrace, is(notNullValue()));
 		assertThat(backtrace[0], containsString("code.lucamarrocco.hoptoad.HoptoadNotifierTest.newException(HoptoadNotifierTest.java:"));
@@ -122,7 +122,21 @@ public class HoptoadNotifierTest {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(200));
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	private String expectedNoticeAsString() {
+		try {
+			InputStream inputStream = getClass().getResource("Notice.txt").openStream();
+			StringBuilder out = new StringBuilder();
+			byte[] b = new byte[4096];
+			for (int n; (n = inputStream.read(b)) != -1;) {
+				out.append(new String(b, 0, n));
+			}
+			return out.toString();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Test
@@ -131,6 +145,6 @@ public class HoptoadNotifierTest {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(200));
+		assertThat(notifier.notify(notice), is(201));
 	}
 }

@@ -11,20 +11,20 @@ public class HoptoadNotifier {
 		PostMethod postMethod = new PostMethod("http://hoptoadapp.com/notices/");
 		postMethod.setRequestHeader("Content-type", "application/x-yaml");
 		postMethod.setRequestHeader("Accept", "text/xml, application/xml");
-		postMethod.addParameter("api_key", notice.apiKey());
-		postMethod.addParameter("error_message", notice.errorMessage());
 
-		int statusCode;
-		
+
+		int statusCode = 0;
+
 		try {
+			postMethod.setRequestBody(new Yaml(notice).toString());
 			statusCode = httpClient.executeMethod(postMethod);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			// DO NOT log this exception!
+			e.printStackTrace();
 		} finally {
 			postMethod.releaseConnection();
 		}
-		
+
 		return statusCode;
 	}
-
 }

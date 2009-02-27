@@ -1,0 +1,35 @@
+notice: 
+  session: {}
+
+  api_key: 7274e956946585ce31dda87801a0de56
+  error_message: undefined method `password' for nil:NilClass
+  error_class: HoptoadNotice
+  request: {}
+
+  environment: {}
+
+  backtrace: 
+  - code.lucamarrocco.hoptoad.HoptoadNotifierTest.newException(HoptoadNotifierTest.java:114)
+  - code.lucamarrocco.hoptoad.HoptoadNotifierTest.testNoticeToString(HoptoadNotifierTest.java:130)
+  - sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+  - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+  - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+  - java.lang.reflect.Method.invoke(Method.java:597)
+  - org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)
+  - org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)
+  - org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:79)
+  - org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)
+  - org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)
+  - org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)
+  - org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)
+  - org.junit.internal.runners.JUnit4ClassRunner.runMethods(JUnit4ClassRunner.java:51)
+  - org.junit.internal.runners.JUnit4ClassRunner$1.run(JUnit4ClassRunner.java:44)
+  - org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)
+  - org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:37)
+  - org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)
+  - org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:45)
+  - org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+  - org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+  - org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+  - org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+  - org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
