@@ -14,9 +14,20 @@ public class HoptoadAppender extends AppenderSkeleton {
 	
 	@Override
 	protected void append(final LoggingEvent loggingEvent) {
-		HoptoadNotice notice = new HoptoadNoticeBuilder(api_key, loggingEvent.getThrowableInformation().getThrowable()).newNotice();
+		if(thereIsThrowableIs(loggingEvent))
+		hoptoadNotifier.notify(newNoticeUsing(loggingEvent));
+	}
 
-		hoptoadNotifier.notify(notice);
+	private boolean thereIsThrowableIs(LoggingEvent loggingEvent) {
+		return loggingEvent.getThrowableInformation() != null;
+	}
+
+	private HoptoadNotice newNoticeUsing(final LoggingEvent loggingEvent) {
+		return new HoptoadNoticeBuilder(api_key, throwable(loggingEvent)).newNotice();
+	}
+
+	private Throwable throwable(final LoggingEvent loggingEvent) {
+		return loggingEvent.getThrowableInformation().getThrowable();
 	}
 
 	@Override
