@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.logging.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
@@ -146,5 +147,12 @@ public class HoptoadNotifierTest {
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
 		assertThat(notifier.notify(notice), is(201));
+	}
+
+	private Log logger = LogFactory.getLog(getClass());
+	
+	@Test
+	public void testLogError() {
+		logger.error("error", newException(ERROR_MESSAGE));
 	}
 }

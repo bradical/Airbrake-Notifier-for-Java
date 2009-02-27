@@ -31,10 +31,10 @@ public class HoptoadNoticeBuilder {
 		this.apiKey = apiKey;
 	}
 
-	public HoptoadNoticeBuilder(String apiKey, Exception exception) {
+	public HoptoadNoticeBuilder(String apiKey, Throwable throwable) {
 		apiKey(apiKey);
-		errorMessage(exception.getMessage());
-		backtrace(toBacktrace(exception.getStackTrace()));
+		errorMessage(throwable.getMessage());
+		backtrace(toBacktrace(throwable.getStackTrace()));
 	}
 
 	public static String[] toBacktrace(StackTraceElement[] stackTrace) {
