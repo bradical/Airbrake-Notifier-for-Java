@@ -1,5 +1,7 @@
 package code.lucamarrocco.hoptoad;
 
+import java.util.*;
+
 public class Yaml {
 
 	private final StringBuilder yaml = new StringBuilder();
@@ -14,19 +16,15 @@ public class Yaml {
 			error_class(notice.errorClass());
 			request();
 
-			environment();
+			environment(notice.environment());
 
 			backtraces();
 			{
-				for(String backtrace: notice.backtrace()) {
+				for (String backtrace : notice.backtrace()) {
 					backtrace(backtrace);
 				}
 			}
 		};
-	}
-
-	private void backtrace(String string) {
-		append("  - " + string + "\n");
 	}
 
 	private void api_key(String string) {
@@ -37,16 +35,27 @@ public class Yaml {
 		yaml.append(string);
 	}
 
+	private void backtrace(String string) {
+		append("  - " + string + "\n");
+	}
+
 	private void backtraces() {
 		append("  backtrace: \n");
 	}
 
-	private void environment() {
-		append("  environment: {}\n\n");
+	private void environment(Map map) {
+		append("  environment: {\n");
+		append(map);
+		append("  }\n");
 	}
 
-	private void request() {
-		append("  request: {}\n\n");
+	private void append(Map<String, ?> map) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String key : map.keySet()) {
+			stringBuilder.append("  " + key + ": " + map.get(key) + ",\n");
+		}
+		stringBuilder.append("\n");
+		append(stringBuilder.toString().replaceAll(",\n\n$", "\n"));
 	}
 
 	private void error_class(String string) {
@@ -57,16 +66,20 @@ public class Yaml {
 		append("  error_message: " + string + "\n");
 	}
 
+	private void notice() {
+		append("notice: \n");
+	}
+
+	private void request() {
+		append("  request: {}\n\n");
+	}
+
 	private void session() {
 		append("  session: {}\n\n");
 	}
 
-	private void notice() {
-		append("notice: \n");
-	}
-	
 	@Override
 	public String toString() {
-		return yaml .toString();
+		return yaml.toString();
 	}
 }

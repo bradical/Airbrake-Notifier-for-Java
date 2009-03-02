@@ -4,6 +4,8 @@ import java.util.*;
 
 public class HoptoadNotice {
 
+	private static final String RAILS_ENV = "RAILS_ENV";
+
 	private String apiKey;
 
 	private String errorMessage;
@@ -29,16 +31,20 @@ public class HoptoadNotice {
 		return apiKey;
 	}
 
-	public String errorMessage() {
-		return errorMessage;
-	}
-
 	public String[] backtrace() {
 		return backtrace;
 	}
 
 	public Map environment() {
 		return environment;
+	}
+
+	public String errorClass() {
+		return getClass().getSimpleName();
+	}
+
+	public String errorMessage() {
+		return errorMessage;
 	}
 
 	public Map request() {
@@ -49,7 +55,7 @@ public class HoptoadNotice {
 		return session;
 	}
 
-	public String errorClass() {
-		return getClass().getSimpleName();
+	public String env() {
+		return (String) environment.get(RAILS_ENV);
 	}
 }

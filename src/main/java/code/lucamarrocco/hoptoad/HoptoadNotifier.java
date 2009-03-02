@@ -12,12 +12,14 @@ public class HoptoadNotifier {
 		postMethod.setRequestHeader("Content-type", "application/x-yaml");
 		postMethod.setRequestHeader("Accept", "text/xml, application/xml");
 
-
 		int statusCode = 0;
 
 		try {
-			postMethod.setRequestBody(new Yaml(notice).toString());
+			String yaml = new Yaml(notice).toString();
+			postMethod.setRequestBody(yaml);
+			System.out.println(yaml);
 			statusCode = httpClient.executeMethod(postMethod);
+			System.out.println(postMethod.getResponseBodyAsString());
 		} catch (Exception e) {
 			// DO NOT log this exception!
 			e.printStackTrace();

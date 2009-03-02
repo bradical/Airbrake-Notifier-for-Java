@@ -3,7 +3,6 @@ package code.lucamarrocco.hoptoad;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.io.*;
 import java.util.*;
 
 import org.apache.commons.logging.*;
@@ -16,6 +15,52 @@ public class HoptoadNotifierTest {
 	protected static final Map REQUEST = new HashMap();
 	protected static final Map SESSION = new HashMap();
 	protected static final Map ENVIRONMENT = new HashMap();
+
+	private Log logger = LogFactory.getLog(getClass());
+
+	private Exception newException(String errorMessage) {
+		try {
+			throw new RuntimeException(errorMessage);
+		} catch (Exception e) {
+			return e;
+		}
+	}
+	
+	@Before
+	public void setUp() {
+		ENVIRONMENT.put("RAILS_ENV", "test");
+	}
+
+	@Test
+	public void testHoptoadBuilderBacktrace() {
+		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		String[] backtrace = HoptoadNoticeBuilder.toBacktrace(EXCEPTION.getStackTrace());
+
+		assertThat(backtrace, is(notNullValue()));
+		assertThat(backtrace[0], containsString("code.lucamarrocco.hoptoad.HoptoadNotifierTest.newException(HoptoadNotifierTest.java:"));
+	}
+
+	@Test
+	public void testLogErrorWithException() {
+		logger.error("error", newException(ERROR_MESSAGE));
+	}
+
+	@Test
+	public void testLogErrorWithoutException() {
+		logger.error("error");
+	}
+
+	@Test
+	public void testNewHoptoadUsingBuilderNoticeFromException() {
+		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
+
+		assertThat(notice, is(notNullValue()));
+
+		assertThat(notice.apiKey(), is(API_KEY));
+		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
+		assertThat(notice.backtrace(), is(notNullValue()));
+	}
 
 	@Test
 	public void testNewHoptoadUsingBuilderNoticeWithBacktrace() {
@@ -88,58 +133,7 @@ public class HoptoadNotifierTest {
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
 		assertThat(notice.session(), is(SESSION));
 	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeFromException() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.backtrace(), is(notNullValue()));
-	}
-
-	@Test
-	public void testHoptoadBuilderBacktrace() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		String[] backtrace = HoptoadNoticeBuilder.toBacktrace(EXCEPTION.getStackTrace());
-
-		assertThat(backtrace, is(notNullValue()));
-		assertThat(backtrace[0], containsString("code.lucamarrocco.hoptoad.HoptoadNotifierTest.newException(HoptoadNotifierTest.java:"));
-	}
-
-	private Exception newException(String errorMessage) {
-		try {
-			throw new RuntimeException(errorMessage);
-		} catch (Exception e) {
-			return e;
-		}
-	}
-
-	@Test
-	public void testSendNoticeToHoptoad() {
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
-		HoptoadNotifier notifier = new HoptoadNotifier();
-
-		assertThat(notifier.notify(notice), is(201));
-	}
-
-	private String expectedNoticeAsString() {
-		try {
-			InputStream inputStream = getClass().getResource("Notice.txt").openStream();
-			StringBuilder out = new StringBuilder();
-			byte[] b = new byte[4096];
-			for (int n; (n = inputStream.read(b)) != -1;) {
-				out.append(new String(b, 0, n));
-			}
-			return out.toString();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
+	
 	@Test
 	public void testSendExceptionToHoptoad() {
 		Exception EXCEPTION = newException(ERROR_MESSAGE);
@@ -148,11 +142,40 @@ public class HoptoadNotifierTest {
 
 		assertThat(notifier.notify(notice), is(201));
 	}
-
-	private Log logger = LogFactory.getLog(getClass());
 	
 	@Test
-	public void testLogError() {
-		logger.error("error", newException(ERROR_MESSAGE));
+	public void testSendNoticeToHoptoad() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testNotifyToHoptoadUsingBuilderNoticeInEnv() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnv() {
+		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnvAndSystemProperties() {
+		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test"){{
+			environment(System.getProperties());
+		}}.newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
 	}
 }
