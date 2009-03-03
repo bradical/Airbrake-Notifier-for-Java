@@ -8,9 +8,25 @@ public class HoptoadAppender extends AppenderSkeleton {
 
 	private String api_key;
 
+	private String env;
+
+	public void setEnv(String env) {
+		this.env = env;
+	}
+
+	public void setApi_key(String api_key) {
+		this.api_key = api_key;
+	}
+
 	@Override
 	protected void append(final LoggingEvent loggingEvent) {
-		notify(loggingEvent);
+		if (thereIsThrowableIn(loggingEvent)) {
+			notify(newNoticeUsing(loggingEvent));
+		}
+	}
+
+	private void notify(HoptoadNotice noticeUsing) {
+		hoptoadNotifier.notify(noticeUsing);
 	}
 
 	@Override
@@ -18,6 +34,10 @@ public class HoptoadAppender extends AppenderSkeleton {
 
 	private String messageIn(LoggingEvent loggingEvent) {
 		return loggingEvent.getMessage().toString();
+	}
+
+	private HoptoadNotice newNoticeUsing(final LoggingEvent loggingEvent) {
+		return new HoptoadNoticeBuilder(api_key, throwable(loggingEvent), env).newNotice();
 	}
 
 	private HoptoadNotice newNoticeUsing(Throwable throwable) {
@@ -51,10 +71,6 @@ public class HoptoadAppender extends AppenderSkeleton {
 	@Override
 	public boolean requiresLayout() {
 		return false;
-	}
-
-	public void setApi_key(String api_key) {
-		this.api_key = api_key;
 	}
 
 	private boolean thereIsThrowableIn(LoggingEvent loggingEvent) {

@@ -94,7 +94,7 @@ public class HoptoadNotifierTest {
 			}
 		}.newNotice();
 
-		Set environmentKeys = notice.environment().keySet();
+		Set<String> environmentKeys = notice.environment().keySet();
 
 		assertThat(environmentKeys, not(hasItem("AWS_SECRET")));
 		assertThat(environmentKeys, not(hasItem("EC2_PRIVATE_KEY")));
@@ -114,7 +114,9 @@ public class HoptoadNotifierTest {
 
 		assertThat(notice.apiKey(), is(API_KEY));
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.environment().keySet(), hasItem("A_KEY"));
+
+		Set<String> environmentKeys = notice.environment().keySet();
+		assertThat(environmentKeys, hasItem("A_KEY"));
 	}
 
 	@Test
@@ -137,7 +139,7 @@ public class HoptoadNotifierTest {
 			}
 		}.newNotice();
 
-		Set environmentKeys = notice.environment().keySet();
+		Set<String> environmentKeys = notice.environment().keySet();
 
 		assertThat(environmentKeys, not(hasItem("A_KEY")));
 	}
@@ -181,7 +183,7 @@ public class HoptoadNotifierTest {
 			}
 		}.newNotice();
 
-		Set environmentKeys = notice.environment().keySet();
+		Set<String> environmentKeys = notice.environment().keySet();
 
 		assertThat(environmentKeys, not(hasItem("java.awt.graphicsenv")));
 		assertThat(environmentKeys, not(hasItem("java.vendor.url")));
