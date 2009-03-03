@@ -12,19 +12,20 @@ public class HoptoadNotice {
 
 	private String[] backtrace = new String[] { "backtrace is null" };
 
-	private Map environment;
+	private Map<String, Object> environment = new HashMap();
 
-	private Map request;
+	private Map<String, Object> request;
 
-	private Map session;
+	private Map<String, Object> session;
 
-	public HoptoadNotice(String apiKey, String errorMessage, String[] backtrace, Map request, Map session, Map environment) {
+	public HoptoadNotice(String apiKey, String errorMessage, String[] backtrace, Map<String, Object> request, Map<String, Object> session, Map<String, Object> environment,
+			List<String> environmentFilters) {
 		this.apiKey = apiKey;
 		this.errorMessage = errorMessage;
 		this.backtrace = backtrace;
 		this.request = request;
 		this.session = session;
-		this.environment = environment;
+		filter(environment, environmentFilters);
 	}
 
 	public String apiKey() {
@@ -33,6 +34,10 @@ public class HoptoadNotice {
 
 	public String[] backtrace() {
 		return backtrace;
+	}
+
+	public String env() {
+		return (String) environment.get(RAILS_ENV);
 	}
 
 	public Map environment() {
@@ -47,15 +52,26 @@ public class HoptoadNotice {
 		return errorMessage;
 	}
 
+	private void filter(Map<String, Object> environment, List<String> environmentFilters) {
+		for (String key : environment.keySet()) {
+			if (!matches(environmentFilters, key)) {
+				this.environment.put(key, environment.get(key));
+			}
+		}
+	}
+
+	private boolean matches(List<String> environmentFilters, String key) {
+		for (String filter : environmentFilters) {
+			if (key.matches(filter)) return true;
+		}
+		return false;
+	}
+
 	public Map request() {
 		return request;
 	}
 
 	public Map session() {
 		return session;
-	}
-
-	public String env() {
-		return (String) environment.get(RAILS_ENV);
 	}
 }

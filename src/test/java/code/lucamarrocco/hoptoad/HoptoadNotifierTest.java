@@ -18,6 +18,8 @@ public class HoptoadNotifierTest {
 
 	private Log logger = LogFactory.getLog(getClass());
 
+	private Map EC2 = new HashMap();
+
 	private Exception newException(String errorMessage) {
 		try {
 			throw new RuntimeException(errorMessage);
@@ -25,10 +27,14 @@ public class HoptoadNotifierTest {
 			return e;
 		}
 	}
-	
+
 	@Before
 	public void setUp() {
-		ENVIRONMENT.put("RAILS_ENV", "test");
+		ENVIRONMENT.put("A_KEY", "test");
+		EC2.put("AWS_SECRET", "AWS_SECRET");
+		EC2.put("EC2_PRIVATE_KEY", "EC2_PRIVATE_KEY");
+		EC2.put("AWS_ACCESS", "AWS_ACCESS");
+		EC2.put("EC2_CERT", "EC2_CERT");
 	}
 
 	@Test
@@ -78,6 +84,25 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
+	public void testNewHoptoadUsingBuilderNoticeWithEc2FilteredEnvironmentWithSystemProperties() {
+
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+
+			{
+				environment(EC2);
+				ec2EnvironmentFilters();
+			}
+		}.newNotice();
+
+		Set environmentKeys = notice.environment().keySet();
+
+		assertThat(environmentKeys, not(hasItem("AWS_SECRET")));
+		assertThat(environmentKeys, not(hasItem("EC2_PRIVATE_KEY")));
+		assertThat(environmentKeys, not(hasItem("AWS_ACCESS")));
+		assertThat(environmentKeys, not(hasItem("EC2_CERT")));
+	}
+
+	@Test
 	public void testNewHoptoadUsingBuilderNoticeWithEnvironment() {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
 			{
@@ -89,7 +114,7 @@ public class HoptoadNotifierTest {
 
 		assertThat(notice.apiKey(), is(API_KEY));
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.environment(), is(ENVIRONMENT));
+		assertThat(notice.environment().keySet(), hasItem("A_KEY"));
 	}
 
 	@Test
@@ -102,6 +127,19 @@ public class HoptoadNotifierTest {
 
 		assertThat(notice.apiKey(), is(API_KEY));
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
+	}
+
+	@Test
+	public void testNewHoptoadUsingBuilderNoticeWithFilterdEnvironment() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				environmentFilter("A_KEY");
+			}
+		}.newNotice();
+
+		Set environmentKeys = notice.environment().keySet();
+
+		assertThat(environmentKeys, not(hasItem("A_KEY")));
 	}
 
 	@Test
@@ -133,30 +171,22 @@ public class HoptoadNotifierTest {
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
 		assertThat(notice.session(), is(SESSION));
 	}
-	
-	@Test
-	public void testSendExceptionToHoptoad() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
-		HoptoadNotifier notifier = new HoptoadNotifier();
-
-		assertThat(notifier.notify(notice), is(201));
-	}
-	
-	@Test
-	public void testSendNoticeToHoptoad() {
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
-		HoptoadNotifier notifier = new HoptoadNotifier();
-
-		assertThat(notifier.notify(notice), is(201));
-	}
 
 	@Test
-	public void testNotifyToHoptoadUsingBuilderNoticeInEnv() {
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE, "test").newNotice();
-		HoptoadNotifier notifier = new HoptoadNotifier();
+	public void testNewHoptoadUsingBuilderNoticeWithStandardFilteredEnvironmentWithSystemProperties() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				environment(System.getProperties());
+				standardEnvironmentFilters();
+			}
+		}.newNotice();
 
-		assertThat(notifier.notify(notice), is(201));
+		Set environmentKeys = notice.environment().keySet();
+
+		assertThat(environmentKeys, not(hasItem("java.awt.graphicsenv")));
+		assertThat(environmentKeys, not(hasItem("java.vendor.url")));
+		assertThat(environmentKeys, not(hasItem("java.class.path")));
+		assertThat(environmentKeys, not(hasItem("java.vm.specification")));
 	}
 
 	@Test
@@ -171,9 +201,37 @@ public class HoptoadNotifierTest {
 	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnvAndSystemProperties() {
 		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test"){{
-			environment(System.getProperties());
-		}}.newNotice();
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test") {
+			{
+				filteredSystemProperties();
+			}
+
+		}.newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testNotifyToHoptoadUsingBuilderNoticeInEnv() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testSendExceptionToHoptoad() {
+		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testSendNoticeToHoptoad() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
 		assertThat(notifier.notify(notice), is(201));

@@ -14,14 +14,16 @@ public class HoptoadNotifier {
 
 		int statusCode = 0;
 
+		String yaml = new Yaml(notice).toString();
+
 		try {
-			String yaml = new Yaml(notice).toString();
 			postMethod.setRequestBody(yaml);
-			System.out.println(yaml);
 			statusCode = httpClient.executeMethod(postMethod);
-			System.out.println(postMethod.getResponseBodyAsString());
+			if (statusCode != 201) System.out.println(postMethod.getResponseBodyAsString());
+
 		} catch (Exception e) {
 			// DO NOT log this exception!
+			System.out.println(yaml);
 			e.printStackTrace();
 		} finally {
 			postMethod.releaseConnection();

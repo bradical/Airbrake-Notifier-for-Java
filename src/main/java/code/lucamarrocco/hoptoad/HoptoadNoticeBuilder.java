@@ -28,15 +28,10 @@ public class HoptoadNoticeBuilder {
 
 	private Map session = new HashMap();
 
+	private List environmentFilters = new LinkedList<String>();
+
 	public HoptoadNoticeBuilder(String apiKey, String errorMessage) {
 		this(apiKey, errorMessage, "test");
-	}
-
-	public HoptoadNoticeBuilder(String apiKey, Throwable throwable, String env) {
-		apiKey(apiKey);
-		errorMessage(throwable.getMessage());
-		backtrace(toBacktrace(throwable.getStackTrace()));
-		env(env);
 	}
 
 	public HoptoadNoticeBuilder(String apiKey, String errorMessage, String env) {
@@ -49,23 +44,39 @@ public class HoptoadNoticeBuilder {
 		this(apiKey, throwable, "test");
 	}
 
-	private void env(String env) {
-		this.environment.put("RAILS_ENV", env);
+	public HoptoadNoticeBuilder(String apiKey, Throwable throwable, String env) {
+		this(apiKey, throwable.getMessage(), env);
+		backtrace(toBacktrace(throwable.getStackTrace()));
 	}
 
 	private void apiKey(String apiKey) {
 		if (notDefined(apiKey)) error("The API key for the project this error is from (required). Get this from the project's page in Hoptoad.");
 		this.apiKey = apiKey;
 	}
-
+	
 	/** An array where each element is a line of the backtrace (required, but can be empty). */
 	protected void backtrace(String[] backtrace) {
 		this.backtrace = backtrace;
 	}
 
+	protected void ec2EnvironmentFilters() {
+		environmentFilter("AWS_SECRET");
+		environmentFilter("EC2_PRIVATE_KEY");
+		environmentFilter("AWS_ACCESS");
+		environmentFilter("EC2_CERT");
+	}
+
+	private void env(String env) {
+		this.environment.put("RAILS_ENV", env);
+	}
+
 	/** A hash of the environment data that existed when the error occurred (required, but can be empty). */
 	protected void environment(Map environment) {
 		this.environment.putAll(environment);
+	}
+
+	public void environmentFilter(String filter) {
+		environmentFilters.add(filter);
 	}
 
 	private void error(String message) {
@@ -77,8 +88,14 @@ public class HoptoadNoticeBuilder {
 		this.errorMessage = errorMessage;
 	}
 
+	protected void filteredSystemProperties() {
+		environment(System.getProperties());
+		standardEnvironmentFilters();
+		ec2EnvironmentFilters();
+	}
+
 	public HoptoadNotice newNotice() {
-		return new HoptoadNotice(apiKey, errorMessage, backtrace, request, session, environment);
+		return new HoptoadNotice(apiKey, errorMessage, backtrace, request, session, environment, environmentFilters);
 	}
 
 	private boolean notDefined(Object object) {
@@ -93,5 +110,12 @@ public class HoptoadNoticeBuilder {
 	/** A hash of the session data that existed when the error occurred (required, but can be empty). */
 	protected void session(Map session) {
 		this.session = session;
+	}
+
+	protected void standardEnvironmentFilters() {
+		environmentFilter("java.awt.*");
+		environmentFilter("java.vendor.*");
+		environmentFilter("java.class.path");
+		environmentFilter("java.vm.specification.*");
 	}
 }
