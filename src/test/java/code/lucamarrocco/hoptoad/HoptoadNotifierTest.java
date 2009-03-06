@@ -9,7 +9,7 @@ import org.apache.commons.logging.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-	protected static final String API_KEY = "7274e956946585ce31dda87801a0de56";
+	protected static final String API_KEY = "9a9c40254e5f0ca77d7205ef8e828a8a";
 	protected static final String ERROR_MESSAGE = "undefined method `password' for nil:NilClass";
 	protected static final String[] BACKTRACE = new String[0];
 	protected static final Map REQUEST = new HashMap();
