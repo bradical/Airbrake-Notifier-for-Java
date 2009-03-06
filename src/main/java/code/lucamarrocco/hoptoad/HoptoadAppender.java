@@ -9,6 +9,12 @@ public class HoptoadAppender extends AppenderSkeleton {
 	private String api_key;
 
 	private String env;
+	
+	private boolean enabled;
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
 	public HoptoadAppender() {
 		setThreshold(Level.ERROR);
@@ -24,6 +30,8 @@ public class HoptoadAppender extends AppenderSkeleton {
 
 	@Override
 	protected void append(final LoggingEvent loggingEvent) {
+		if(!enabled) return;
+		
 		if (thereIsThrowableIn(loggingEvent)) {
 			notifyThrowableIn(loggingEvent);
 		}
