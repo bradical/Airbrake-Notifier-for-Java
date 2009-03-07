@@ -19,8 +19,10 @@ public class HoptoadNotifier {
 		try {
 			postMethod.setRequestBody(yaml);
 			statusCode = httpClient.executeMethod(postMethod);
-			if (statusCode != 201) System.out.println(postMethod.getResponseBodyAsString());
-
+			if (statusCode != 201) {
+				System.out.println(yaml);
+				System.out.println(postMethod.getResponseBodyAsString());
+			}
 		} catch (Exception e) {
 			// DO NOT log this exception!
 			System.out.println(yaml);

@@ -1,26 +1,16 @@
 package code.lucamarrocco.hoptoad;
 
-import java.text.*;
+import static java.util.Arrays.*;
+
 import java.util.*;
 
 public class HoptoadNoticeBuilder {
-	private static String backtrace(StackTraceElement stackTraceElement) {
-		return MessageFormat.format("{0}.{1}({2}:{3})", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getFileName(), stackTraceElement.getLineNumber());
-	}
-
-	public static String[] toBacktrace(StackTraceElement[] stackTrace) {
-		List<String> backtrace = new LinkedList<String>();
-		for (StackTraceElement stackTraceElement : stackTrace) {
-			backtrace.add(backtrace(stackTraceElement));
-		}
-		return backtrace.toArray(new String[0]);
-	}
 
 	private String apiKey;
 
 	private String errorMessage;
 
-	private String[] backtrace = new String[] { "backtrace is nil" };
+	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
 
 	private Map environment = new HashMap();
 
@@ -46,16 +36,16 @@ public class HoptoadNoticeBuilder {
 
 	public HoptoadNoticeBuilder(String apiKey, Throwable throwable, String env) {
 		this(apiKey, throwable.getMessage(), env);
-		backtrace(toBacktrace(throwable.getStackTrace()));
+		backtrace(new Backtrace(throwable));
 	}
 
 	private void apiKey(String apiKey) {
 		if (notDefined(apiKey)) error("The API key for the project this error is from (required). Get this from the project's page in Hoptoad.");
 		this.apiKey = apiKey;
 	}
-	
+
 	/** An array where each element is a line of the backtrace (required, but can be empty). */
-	protected void backtrace(String[] backtrace) {
+	protected void backtrace(Backtrace backtrace) {
 		this.backtrace = backtrace;
 	}
 

@@ -1,11 +1,14 @@
 package code.lucamarrocco.hoptoad;
 
+import static code.lucamarrocco.hoptoad.Exceptions.*;
+import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
 import static code.lucamarrocco.hoptoad.Slurp.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.*;
 
+import org.apache.commons.lang.exception.*;
 import org.junit.*;
 
 public class BacktraceFilterTest {
@@ -14,17 +17,15 @@ public class BacktraceFilterTest {
 		return strings(slurp(read("backtrace.txt")));
 	}
 
-
-	private Iterable<String> filteredBacktrace() {
+	private List<String> filteredBacktrace() {
 		return strings(slurp(read("filteredBacktrace.txt")));
 	}
-	
+
 	@Test
 	public void testFilteredCocoonBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
 			{
 				ignoreCocoon();
-				filter();
 			}
 		};
 
@@ -50,7 +51,6 @@ public class BacktraceFilterTest {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
 			{
 				ignoreMozilla();
-				filter();
 			}
 		};
 
@@ -67,7 +67,6 @@ public class BacktraceFilterTest {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
 			{
 				ignoreMortbayJetty();
-				filter();
 			}
 		};
 
@@ -87,6 +86,8 @@ public class BacktraceFilterTest {
 		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:487)")));
 		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)")));
 		assertThat(backtrace, not(hasItem("org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:395)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:488)")));
 	}
 
 	@Test
@@ -94,7 +95,6 @@ public class BacktraceFilterTest {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
 			{
 				ignoreSpringSecurity();
-				filter();
 			}
 		};
 
@@ -113,12 +113,122 @@ public class BacktraceFilterTest {
 		assertThat(backtrace, not(hasItem("org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:167)")));
 	}
 
-
 	@Test
 	public void testFilteredIgnomreCommonsBacktrace() {
-		Iterable<String> backtrace = new CocoonFilteredBacktrace(backtrace());
-		Iterable<String> filteredBacktrace = new CocoonFilteredBacktrace(filteredBacktrace());
-		
-		assertEquals(backtrace.toString(), filteredBacktrace.toString());
+		Iterable<String> backtrace = new WebFilteredBacktrace(backtrace());
+		Iterable<String> filteredBacktrace = new WebFilteredBacktrace(filteredBacktrace());
+
+		assertEquals(filteredBacktrace.toString(), backtrace.toString());
+	}
+
+	@Test
+	public void testFilteredNoiseBacktrace() {
+		Iterable<String> backtrace = new Backtrace(backtrace()) {
+			{
+				ignoreNoise();
+			}
+		};
+
+		assertThat(backtrace, not(hasItem("inv1.invoke(:-1)")));
+		assertThat(backtrace, not(hasItem("javax.servlet.http.HttpServlet.service(HttpServlet.java:820)")));
+		assertThat(backtrace, not(hasItem("sun.reflect.GeneratedMethodAccessor338.invoke(null:-1)")));
+		assertThat(backtrace, not(hasItem("sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)")));
+		assertThat(backtrace, not(hasItem("java.lang.reflect.Method.invoke(Method.java:597)")));
+	}
+
+	@Test
+	public void testFilteredJunitBacktrace() {
+		Iterable<String> backtrace = new Backtrace(backtrace()) {
+			{
+				ignoreJunit();
+			}
+		};
+
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)")));
+	}
+
+	@Test
+	public void testFilteredEclipseBacktrace() {
+		Iterable<String> backtrace = new Backtrace(backtrace()) {
+			{
+				ignoreEclipse();
+			}
+		};
+
+		assertThat(backtrace, not(hasItem("org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:45)")));
+		assertThat(backtrace, not(hasItem("org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)")));
+		assertThat(backtrace, not(hasItem("org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)")));
+	}
+
+	@Test
+	public void testFilteredExceptionGenerateInsideTest() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+
+		Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION))) {
+			{
+				ignoreJunit();
+				ignoreEclipse();
+				ignoreNoise();
+			}
+
+		};
+
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)")));
+		assertThat(backtrace, not(hasItem("	at org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)")));
+
+		assertThat(backtrace, not(hasItem("	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:45)")));
+		assertThat(backtrace, not(hasItem("	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)")));
+		assertThat(backtrace, not(hasItem("	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)")));
+
+		assertThat(backtrace, not(hasItem("	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)")));
+		assertThat(backtrace, not(hasItem("	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)")));
+		assertThat(backtrace, not(hasItem("	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)")));
+	}
+
+	@Test
+	public void testNotValidaBacktrace() {
+		assertThat("Caused by: java.lang.NullPointerException", is(not(validBacktrace())));
+	}
+
+	@Test
+	public void testValidaBacktrace() {
+		assertThat("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)", is(validBacktrace()));
+		assertThat("vendors/rails/actionpack/lib/action_controller/filter.rb:579:in `call_filters'", is(validBacktrace()));
+	}
+
+	@Test
+	public void testFilteredSafeCausedByTest() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+
+		Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION)));
+
+		assertThat(backtrace, not(hasItem("Caused by: java.lang.NullPointerException")));
+		assertThat(backtrace, hasItem("Caused by java.lang.NullPointerException"));
+
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
+		assertThat(backtrace, hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass"));
+	}
+	
+	@Test
+	public void testFilteredIgnoringMessage() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+
+		Iterable<String> backtrace = new WebFilteredBacktrace(EXCEPTION);
+
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
 	}
 }

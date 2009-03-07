@@ -1,17 +1,22 @@
 package code.lucamarrocco.hoptoad;
 
+import static code.lucamarrocco.hoptoad.Backtrace.*;
+import static code.lucamarrocco.hoptoad.Exceptions.*;
+import static code.lucamarrocco.hoptoad.Slurp.*;
+import static java.util.Arrays.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.*;
 
+import org.apache.commons.lang.exception.*;
 import org.apache.commons.logging.*;
+import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
 	protected static final String API_KEY = "9a9c40254e5f0ca77d7205ef8e828a8a";
-	protected static final String ERROR_MESSAGE = "undefined method `password' for nil:NilClass";
-	protected static final String[] BACKTRACE = new String[0];
+	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
 	protected static final Map REQUEST = new HashMap();
 	protected static final Map SESSION = new HashMap();
 	protected static final Map ENVIRONMENT = new HashMap();
@@ -19,14 +24,6 @@ public class HoptoadNotifierTest {
 	private Log logger = LogFactory.getLog(getClass());
 
 	private Map EC2 = new HashMap();
-
-	private Exception newException(String errorMessage) {
-		try {
-			throw new RuntimeException(errorMessage);
-		} catch (Exception e) {
-			return e;
-		}
-	}
 
 	@Before
 	public void setUp() {
@@ -38,12 +35,15 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
-	public void testHoptoadBuilderBacktrace() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
-		String[] backtrace = HoptoadNoticeBuilder.toBacktrace(EXCEPTION.getStackTrace());
+	public void testLogThresholdLesserThatErrorWithExceptionDoNotNotifyToHoptoad() {
+		logger.info("info", newException(ERROR_MESSAGE));
+		logger.warn("warn", newException(ERROR_MESSAGE));
+	}
 
-		assertThat(backtrace, is(notNullValue()));
-		assertThat(backtrace[0], containsString("code.lucamarrocco.hoptoad.HoptoadNotifierTest.newException(HoptoadNotifierTest.java:"));
+	@Test
+	public void testLogThresholdLesserThatErrorWithoutExceptionDoNotNotifyToHoptoad() {
+		logger.info("info");
+		logger.warn("warn");
 	}
 
 	@Test
@@ -114,9 +114,7 @@ public class HoptoadNotifierTest {
 
 		assertThat(notice.apiKey(), is(API_KEY));
 		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-
-		Set<String> environmentKeys = notice.environment().keySet();
-		assertThat(environmentKeys, hasItem("A_KEY"));
+		assertThat(notice.environment().keySet(), hasItem("A_KEY"));
 	}
 
 	@Test
@@ -237,5 +235,71 @@ public class HoptoadNotifierTest {
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
 		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testSendNoticeWithLargeBacktrace() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				backtrace(new Backtrace(strings(slurp(read("backtrace.txt")))));
+			}
+		}.newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testSendNoticeWithFilteredBacktrace() {
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				backtrace(new WebFilteredBacktrace(strings(slurp(read("backtrace.txt")))));
+			}
+		}.newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testSendExceptionNoticeWithFilteredBacktrace() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				backtrace(new WebFilteredBacktrace(EXCEPTION));
+			}
+		}.newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
+	public void testHowBacktraceHoptoadNotInternalServerError() {
+		assertThat(notifing(ERROR_MESSAGE), not(internalServerError()));
+		assertThat(notifing("java.lang.RuntimeException: an expression is not valid"), not(internalServerError()));
+		assertThat(notifing("Caused by: java.lang.NullPointerException"), not(internalServerError()));
+		assertThat(notifing("at code.lucamarrocco.notifier.Exceptions.newException(Exceptions.java:11)"), not(internalServerError()));
+		assertThat(notifing("... 23 more"), not(internalServerError()));
+	}
+
+	private int notifing(final String string) {
+		return new HoptoadNotifier().notify(new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				backtrace(new Backtrace(asList(string)));
+			}
+		}.newNotice());
+	}
+
+	private <T> Matcher<T> internalServerError() {
+		return new BaseMatcher<T>() {
+			public void describeTo(Description description) {
+				description.appendText("internal server error");
+			}
+
+			public boolean matches(Object item) {
+				return item.equals(500);
+			}
+		};
 	}
 }

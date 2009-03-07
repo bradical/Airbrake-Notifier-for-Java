@@ -1,5 +1,7 @@
 package code.lucamarrocco.hoptoad;
 
+import static java.util.Arrays.*;
+
 import java.util.*;
 
 public class HoptoadNotice {
@@ -10,7 +12,7 @@ public class HoptoadNotice {
 
 	private String errorMessage;
 
-	private String[] backtrace = new String[] { "backtrace is null" };
+	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
 
 	private Map<String, Object> environment = new HashMap();
 
@@ -18,7 +20,7 @@ public class HoptoadNotice {
 
 	private Map<String, Object> session;
 
-	public HoptoadNotice(String apiKey, String errorMessage, String[] backtrace, Map<String, Object> request, Map<String, Object> session, Map<String, Object> environment,
+	public HoptoadNotice(String apiKey, String errorMessage, Backtrace backtrace, Map<String, Object> request, Map<String, Object> session, Map<String, Object> environment,
 			List<String> environmentFilters) {
 		this.apiKey = apiKey;
 		this.errorMessage = errorMessage;
@@ -32,7 +34,7 @@ public class HoptoadNotice {
 		return apiKey;
 	}
 
-	public String[] backtrace() {
+	public Backtrace backtrace() {
 		return backtrace;
 	}
 
