@@ -18,6 +18,14 @@ public class Backtrace implements Iterable<String> {
 		return throwable.getMessage();
 	}
 
+	private String[] toBacktrace(StackTraceElement[] stackTrace) {
+		List<String> backtrace = new LinkedList<String>();
+		for (StackTraceElement stackTraceElement : stackTrace) {
+			backtrace.add(backtrace(stackTraceElement));
+		}
+		return backtrace.toArray(new String[0]);
+	}
+
 	public static final List<String> toBacktrace(Throwable throwable) {
 		List<String> strings = new LinkedList<String>();
 		Scanner scanner = new Scanner(ExceptionUtils.getStackTrace(throwable)).useDelimiter("\n");

@@ -1,6 +1,5 @@
 package code.lucamarrocco.hoptoad;
 
-import static code.lucamarrocco.hoptoad.Backtrace.*;
 import static code.lucamarrocco.hoptoad.Exceptions.*;
 import static code.lucamarrocco.hoptoad.Slurp.*;
 import static java.util.Arrays.*;
@@ -9,13 +8,12 @@ import static org.junit.Assert.*;
 
 import java.util.*;
 
-import org.apache.commons.lang.exception.*;
 import org.apache.commons.logging.*;
 import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-	protected static final String API_KEY = "9a9c40254e5f0ca77d7205ef8e828a8a";
+	protected static final String API_KEY = "ee477a5da66f0079a49a7b6a07f0fe5f";
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
 	protected static final Map REQUEST = new HashMap();
 	protected static final Map SESSION = new HashMap();
