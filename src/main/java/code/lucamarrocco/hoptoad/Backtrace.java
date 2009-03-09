@@ -1,35 +1,22 @@
 package code.lucamarrocco.hoptoad;
 
-import java.text.*;
+import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
+import static org.hamcrest.Matchers.*;
+
 import java.util.*;
 
 import org.apache.commons.lang.exception.*;
 
-import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
-import static org.hamcrest.Matchers.*;
-
 public class Backtrace implements Iterable<String> {
-
-	private String backtrace(StackTraceElement stackTraceElement) {
-		return MessageFormat.format("{0}.{1}({2}:{3})", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getFileName(), stackTraceElement.getLineNumber());
-	}
 
 	private String messageIn(Throwable throwable) {
 		return throwable.getMessage();
 	}
 
-	private String[] toBacktrace(StackTraceElement[] stackTrace) {
-		List<String> backtrace = new LinkedList<String>();
-		for (StackTraceElement stackTraceElement : stackTrace) {
-			backtrace.add(backtrace(stackTraceElement));
-		}
-		return backtrace.toArray(new String[0]);
-	}
-
-	public static final List<String> toBacktrace(Throwable throwable) {
+	private final List<String> toBacktrace(Throwable throwable) {
 		List<String> strings = new LinkedList<String>();
 		Scanner scanner = new Scanner(ExceptionUtils.getStackTrace(throwable)).useDelimiter("\n");
-		while(scanner.hasNext()) {
+		while (scanner.hasNext()) {
 			strings.add(scanner.next());
 		}
 		return strings;
@@ -38,7 +25,7 @@ public class Backtrace implements Iterable<String> {
 	private final List<String> backtrace;
 
 	private List<String> ignoreRules = new LinkedList<String>();
-	
+
 	private final List<String> filteredBacktrace = new LinkedList<String>();
 
 	public Backtrace(List<String> backtrace) {
@@ -170,7 +157,9 @@ public class Backtrace implements Iterable<String> {
 	}
 
 	public Iterator<String> iterator() {
-		if (needToBeFiltered()) filter(backtrace);
+		if (needToBeFiltered()) {
+			filter(backtrace);
+		}
 		return filteredBacktrace.iterator();
 	}
 

@@ -251,7 +251,7 @@ public class HoptoadNotifierTest {
 	public void testSendNoticeWithFilteredBacktrace() {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
 			{
-				backtrace(new WebFilteredBacktrace(strings(slurp(read("backtrace.txt")))));
+				backtrace(new QuietBacktrace(strings(slurp(read("backtrace.txt")))));
 			}
 		}.newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
@@ -264,7 +264,7 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
 			{
-				backtrace(new WebFilteredBacktrace(EXCEPTION));
+				backtrace(new QuietBacktrace(EXCEPTION));
 			}
 		}.newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
