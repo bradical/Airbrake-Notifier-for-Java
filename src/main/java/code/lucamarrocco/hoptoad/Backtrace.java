@@ -33,7 +33,7 @@ public class Backtrace implements Iterable<String> {
 	}
 
 	protected String toBacktrace(String className, String fileName, int lineNumber, String methodName) {
-		return MessageFormat.format("\tat {0}.{1}({2}):{3})", className, methodName, fileName, lineNumber);
+		return MessageFormat.format("\tat {0}.{1}({2}:{3})", className, methodName, fileName, lineNumber);
 	}
 
 	private final List<String> backtrace = new LinkedList<String>();

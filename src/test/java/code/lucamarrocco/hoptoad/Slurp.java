@@ -16,7 +16,7 @@ public class Slurp {
 	public static InputStream read(final String file) {
 		final InputStream backtraceAsStream;
 		try {
-			backtraceAsStream = Slurp.class.getResourceAsStream(file);
+			backtraceAsStream = Slurp.class.getClassLoader().getResourceAsStream(file);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
