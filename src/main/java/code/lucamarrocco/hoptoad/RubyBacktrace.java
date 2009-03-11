@@ -18,7 +18,7 @@ public class RubyBacktrace extends Backtrace {
 	}
 
 	protected String toBacktrace(String className, String fileName, int lineNumber, String methodName) {
-		return MessageFormat.format("at {0},{1}:{2}:in `{3}''", className, fileName, lineNumber, methodName);
+		return MessageFormat.format("at {0}, {1}:{2}:in `{3}''", className, fileName, lineNumber, methodName);
 	}
 
 	public Backtrace newBacktrace(Throwable throwable) {
