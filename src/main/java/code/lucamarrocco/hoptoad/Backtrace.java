@@ -3,49 +3,66 @@ package code.lucamarrocco.hoptoad;
 import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
 import static org.hamcrest.Matchers.*;
 
+import java.text.*;
 import java.util.*;
-
-import org.apache.commons.lang.exception.*;
 
 public class Backtrace implements Iterable<String> {
 
 	private String messageIn(Throwable throwable) {
-		return throwable.getMessage();
+		String message = throwable.getMessage();
+		if (message == null) message = throwable.getClass().getName();
+		return message;
 	}
 
-	private final List<String> toBacktrace(Throwable throwable) {
-		List<String> strings = new LinkedList<String>();
-		Scanner scanner = new Scanner(ExceptionUtils.getStackTrace(throwable)).useDelimiter("\n");
-		while (scanner.hasNext()) {
-			strings.add(scanner.next());
-		}
-		return strings;
+	private void toBacktrace(Throwable throwable) {
+		if (throwable == null) return;
+
+		backtrace.add(causedBy(throwable));
+		for (StackTraceElement element : throwable.getStackTrace())
+			backtrace.add(toBacktrace(element));
+
+		toBacktrace(throwable.getCause());
 	}
 
-	private final List<String> backtrace;
+	private String causedBy(Throwable throwable) {
+		return MessageFormat.format("Caused by {0}", messageIn(throwable));
+	}
 
-	private List<String> ignoreRules = new LinkedList<String>();
+	private String toBacktrace(StackTraceElement element) {
+		return toBacktrace(element.getClassName(), element.getFileName(), element.getLineNumber(), element.getMethodName());
+	}
+
+	protected String toBacktrace(String className, String fileName, int lineNumber, String methodName) {
+		return MessageFormat.format("\tat {0}.{1}({2}:{3})", className, methodName, fileName, lineNumber);
+	}
+
+	private final List<String> backtrace = new LinkedList<String>();
+
+	private final List<String> ignoreRules = new LinkedList<String>();
 
 	private final List<String> filteredBacktrace = new LinkedList<String>();
 
 	public Backtrace(List<String> backtrace) {
-		this.backtrace = backtrace;
+		this.backtrace.addAll(backtrace);
 		ignore();
 		filter();
 	}
 
 	public Backtrace(List<String> backtrace, String errorMessage) {
-		this.backtrace = backtrace;
+		this.backtrace.addAll(backtrace);
 		ignore(".*" + errorMessage + ".*");
 		ignore();
 		filter();
 	}
 
 	public Backtrace(Throwable throwable) {
-		this.backtrace = toBacktrace(throwable);
+		toBacktrace(throwable);
 		ignore(".*" + messageIn(throwable) + ".*");
 		ignore();
 		filter();
+	}
+
+	protected Backtrace() {
 	}
 
 	protected void filter() {
@@ -65,6 +82,7 @@ public class Backtrace implements Iterable<String> {
 	}
 
 	protected void ignore() {
+		ignoreEmptyCause();
 		ignoreCocoon();
 		ignoreMozilla();
 		ignoreSpringSecurity();
@@ -72,6 +90,10 @@ public class Backtrace implements Iterable<String> {
 		ignoreJunit();
 		ignoreEclipse();
 		ignoreNoise();
+	}
+
+	private void ignoreEmptyCause() {
+		ignore("^Caused by $");
 	}
 
 	protected void ignore(String ignoreRule) {
@@ -185,5 +207,9 @@ public class Backtrace implements Iterable<String> {
 			stringBuilder.append(string).append("\n");
 		}
 		return stringBuilder.toString();
+	}
+
+	public Backtrace newBacktrace(Throwable throwable) {
+		return new Backtrace(throwable);
 	}
 }

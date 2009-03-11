@@ -41,7 +41,7 @@ public class HoptoadAppender extends AppenderSkeleton {
 	public void close() {}
 
 	private HoptoadNotice newNoticeUsing(Throwable throwable) {
-		return new HoptoadNoticeBuilderUsingFilterdSystemProperties(api_key, throwable, env).newNotice();
+		return new HoptoadNoticeBuilderUsingFilterdSystemProperties(api_key, new QuietBacktrace(), throwable, env).newNotice();
 	}
 
 	private int notifyThrowableIn(LoggingEvent loggingEvent) {

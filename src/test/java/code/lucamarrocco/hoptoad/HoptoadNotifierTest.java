@@ -15,13 +15,33 @@ import org.junit.*;
 public class HoptoadNotifierTest {
 	protected static final String API_KEY = "ee477a5da66f0079a49a7b6a07f0fe5f";
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
-	protected static final Map REQUEST = new HashMap();
-	protected static final Map SESSION = new HashMap();
-	protected static final Map ENVIRONMENT = new HashMap();
+	protected static final Map<String, Object> REQUEST = new HashMap<String, Object>();
+	protected static final Map<String, Object> SESSION = new HashMap<String, Object>();
+	protected static final Map<String, Object> ENVIRONMENT = new HashMap<String, Object>();
 
 	private Log logger = LogFactory.getLog(getClass());
 
-	private Map EC2 = new HashMap();
+	private Map<String, Object> EC2 = new HashMap<String, Object>();
+
+	private <T> Matcher<T> internalServerError() {
+		return new BaseMatcher<T>() {
+			public void describeTo(Description description) {
+				description.appendText("internal server error");
+			}
+
+			public boolean matches(Object item) {
+				return item.equals(500);
+			}
+		};
+	}
+
+	private int notifing(final String string) {
+		return new HoptoadNotifier().notify(new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
+			{
+				backtrace(new Backtrace(asList(string)));
+			}
+		}.newNotice());
+	}
 
 	@Before
 	public void setUp() {
@@ -30,6 +50,25 @@ public class HoptoadNotifierTest {
 		EC2.put("EC2_PRIVATE_KEY", "EC2_PRIVATE_KEY");
 		EC2.put("AWS_ACCESS", "AWS_ACCESS");
 		EC2.put("EC2_CERT", "EC2_CERT");
+	}
+
+	@Test
+	public void testHowBacktraceHoptoadNotInternalServerError() {
+		assertThat(notifing(ERROR_MESSAGE), not(internalServerError()));
+		assertThat(notifing("java.lang.RuntimeException: an expression is not valid"), not(internalServerError()));
+		assertThat(notifing("Caused by: java.lang.NullPointerException"), not(internalServerError()));
+		assertThat(notifing("at code.lucamarrocco.notifier.Exceptions.newException(Exceptions.java:11)"), not(internalServerError()));
+		assertThat(notifing("... 23 more"), not(internalServerError()));
+	}
+
+	@Test
+	public void testLogErrorWithException() {
+		logger.error("error", newException(ERROR_MESSAGE));
+	}
+
+	@Test
+	public void testLogErrorWithoutException() {
+		logger.error("error");
 	}
 
 	@Test
@@ -45,18 +84,8 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
-	public void testLogErrorWithException() {
-		logger.error("error", newException(ERROR_MESSAGE));
-	}
-
-	@Test
-	public void testLogErrorWithoutException() {
-		logger.error("error");
-	}
-
-	@Test
 	public void testNewHoptoadUsingBuilderNoticeFromException() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
 
 		assertThat(notice, is(notNullValue()));
@@ -189,7 +218,7 @@ public class HoptoadNotifierTest {
 
 	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnv() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test").newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
@@ -198,7 +227,7 @@ public class HoptoadNotifierTest {
 
 	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnvAndSystemProperties() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test") {
 			{
 				filteredSystemProperties();
@@ -219,8 +248,17 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
+	public void testSendExceptionNoticeWithFilteredBacktrace() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new QuietBacktrace(), EXCEPTION, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
+	}
+
+	@Test
 	public void testSendExceptionToHoptoad() {
-		Exception EXCEPTION = newException(ERROR_MESSAGE);
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
@@ -230,18 +268,6 @@ public class HoptoadNotifierTest {
 	@Test
 	public void testSendNoticeToHoptoad() {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
-		HoptoadNotifier notifier = new HoptoadNotifier();
-
-		assertThat(notifier.notify(notice), is(201));
-	}
-
-	@Test
-	public void testSendNoticeWithLargeBacktrace() {
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				backtrace(new Backtrace(strings(slurp(read("backtrace.txt")))));
-			}
-		}.newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
 		assertThat(notifier.notify(notice), is(201));
@@ -260,11 +286,10 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
-	public void testSendExceptionNoticeWithFilteredBacktrace() {
-		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+	public void testSendNoticeWithLargeBacktrace() {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
 			{
-				backtrace(new QuietBacktrace(EXCEPTION));
+				backtrace(new Backtrace(strings(slurp(read("backtrace.txt")))));
 			}
 		}.newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
@@ -273,31 +298,20 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
-	public void testHowBacktraceHoptoadNotInternalServerError() {
-		assertThat(notifing(ERROR_MESSAGE), not(internalServerError()));
-		assertThat(notifing("java.lang.RuntimeException: an expression is not valid"), not(internalServerError()));
-		assertThat(notifing("Caused by: java.lang.NullPointerException"), not(internalServerError()));
-		assertThat(notifing("at code.lucamarrocco.notifier.Exceptions.newException(Exceptions.java:11)"), not(internalServerError()));
-		assertThat(notifing("... 23 more"), not(internalServerError()));
+	public void testSendExceptionToHoptoadUsingRubyBacktrace() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
+
+		assertThat(notifier.notify(notice), is(201));
 	}
 
-	private int notifing(final String string) {
-		return new HoptoadNotifier().notify(new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				backtrace(new Backtrace(asList(string)));
-			}
-		}.newNotice());
-	}
+	@Test
+	public void testSendExceptionToHoptoadUsingRubyBacktraceAndFilteredSystemProperties() {
+		final Exception EXCEPTION = newException(ERROR_MESSAGE);
+		HoptoadNotice notice = new HoptoadNoticeBuilderUsingFilterdSystemProperties(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
+		HoptoadNotifier notifier = new HoptoadNotifier();
 
-	private <T> Matcher<T> internalServerError() {
-		return new BaseMatcher<T>() {
-			public void describeTo(Description description) {
-				description.appendText("internal server error");
-			}
-
-			public boolean matches(Object item) {
-				return item.equals(500);
-			}
-		};
+		assertThat(notifier.notify(notice), is(201));
 	}
 }

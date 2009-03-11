@@ -14,11 +14,11 @@ public class HoptoadNotice {
 
 	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
 
-	private Map<String, Object> environment = new HashMap();
+	private Map<String, Object> environment = new TreeMap<String, Object>();
 
-	private Map<String, Object> request;
+	private Map<String, Object> request = new TreeMap<String, Object>();
 
-	private Map<String, Object> session;
+	private Map<String, Object> session = new TreeMap<String, Object>();
 
 	public HoptoadNotice(String apiKey, String errorMessage, Backtrace backtrace, Map<String, Object> request, Map<String, Object> session, Map<String, Object> environment,
 			List<String> environmentFilters) {
@@ -42,7 +42,7 @@ public class HoptoadNotice {
 		return (String) environment.get(RAILS_ENV);
 	}
 
-	public Map environment() {
+	public Map<String, Object> environment() {
 		return environment;
 	}
 
@@ -69,11 +69,11 @@ public class HoptoadNotice {
 		return false;
 	}
 
-	public Map request() {
+	public Map<String, Object> request() {
 		return request;
 	}
 
-	public Map session() {
+	public Map<String, Object> session() {
 		return session;
 	}
 }

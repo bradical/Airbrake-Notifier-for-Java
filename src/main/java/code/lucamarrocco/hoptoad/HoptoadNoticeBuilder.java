@@ -12,13 +12,15 @@ public class HoptoadNoticeBuilder {
 
 	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
 
-	private Map environment = new HashMap();
+	private Map<String, Object> environment = new TreeMap<String, Object>();
 
-	private Map request = new HashMap();
+	private Map<String, Object> request = new TreeMap<String, Object>();
 
-	private Map session = new HashMap();
+	private Map<String, Object> session = new TreeMap<String, Object>();
 
-	private List environmentFilters = new LinkedList<String>();
+	private List<String> environmentFilters = new LinkedList<String>();
+
+	private Backtrace backtraceBuilder = new Backtrace();
 
 	public HoptoadNoticeBuilder(String apiKey, String errorMessage) {
 		this(apiKey, errorMessage, "test");
@@ -31,12 +33,21 @@ public class HoptoadNoticeBuilder {
 	}
 
 	public HoptoadNoticeBuilder(String apiKey, Throwable throwable) {
-		this(apiKey, throwable, "test");
+		this(apiKey, new Backtrace(), throwable, "test");
 	}
 
 	public HoptoadNoticeBuilder(String apiKey, Throwable throwable, String env) {
+		this(apiKey, new Backtrace(), throwable, env);
+	}
+
+	public HoptoadNoticeBuilder(String apiKey, Backtrace backtraceBuilder,  Throwable throwable, String env) {
 		this(apiKey, throwable.getMessage(), env);
-		backtrace(new Backtrace(throwable));
+		this.backtraceBuilder = backtraceBuilder;
+		backtrace(throwable);
+	}
+
+	private void backtrace(Throwable throwable) {
+		backtrace(backtraceBuilder.newBacktrace(throwable));
 	}
 
 	private void apiKey(String apiKey) {
