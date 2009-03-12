@@ -48,13 +48,6 @@ public class Backtrace implements Iterable<String> {
 		filter();
 	}
 
-	public Backtrace(List<String> backtrace, String errorMessage) {
-		this.backtrace.addAll(backtrace);
-		ignore(".*" + errorMessage + ".*");
-		ignore();
-		filter();
-	}
-
 	public Backtrace(Throwable throwable) {
 		toBacktrace(throwable);
 		ignore(".*" + messageIn(throwable) + ".*");
