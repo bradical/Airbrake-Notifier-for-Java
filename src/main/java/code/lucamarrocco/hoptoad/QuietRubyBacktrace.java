@@ -3,9 +3,9 @@ package code.lucamarrocco.hoptoad;
 import java.util.*;
 
 
-public class QuietBacktrace extends RubyBacktrace {
+public class QuietRubyBacktrace extends RubyBacktrace {
 
-	public QuietBacktrace(Throwable throwable) {
+	public QuietRubyBacktrace(Throwable throwable) {
 		super(throwable);
 	}
 
@@ -19,16 +19,16 @@ public class QuietBacktrace extends RubyBacktrace {
 		ignoreNoise();
 	}
 
-	public QuietBacktrace() {
+	public QuietRubyBacktrace() {
 		super();
 	}
 
-	protected QuietBacktrace(List<String> backtrace) {
+	protected QuietRubyBacktrace(List<String> backtrace) {
 		super(backtrace);
 	}
 
 	public Backtrace newBacktrace(Throwable throwable) {
-		return new QuietBacktrace(throwable);
+		return new QuietRubyBacktrace(throwable);
 	}
 
 }

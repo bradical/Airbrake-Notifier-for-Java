@@ -22,9 +22,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredCocoonBacktrace() {
+	public void testIgnoreCocoonBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreCocoon();
 			}
 		};
@@ -47,9 +47,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredMozillaBacktrace() {
+	public void testIgnoreMozillaBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreMozilla();
 			}
 		};
@@ -63,9 +63,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredMortbayJettyBacktrace() {
+	public void testIgnoreMortbayJettyBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreMortbayJetty();
 			}
 		};
@@ -91,9 +91,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredSpringBacktrace() {
+	public void testIgnoreSpringBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreSpringSecurity();
 			}
 		};
@@ -114,17 +114,17 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredIgnomreCommonsBacktrace() {
-		Iterable<String> backtrace = new QuietBacktrace(backtrace());
-		Iterable<String> filteredBacktrace = new QuietBacktrace(filteredBacktrace());
+	public void testIgnoreIgnomreCommonsBacktrace() {
+		Iterable<String> backtrace = new QuietRubyBacktrace(backtrace());
+		Iterable<String> filteredBacktrace = new QuietRubyBacktrace(filteredBacktrace());
 
 		assertEquals(filteredBacktrace.toString(), backtrace.toString());
 	}
 
 	@Test
-	public void testFilteredNoiseBacktrace() {
+	public void testIgnoreNoiseBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreNoise();
 			}
 		};
@@ -137,9 +137,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredJunitBacktrace() {
+	public void testIgnoreJunitBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreJunit();
 			}
 		};
@@ -155,9 +155,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredEclipseBacktrace() {
+	public void testIgnoreEclipseBacktrace() {
 		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			{
+			protected void ignore() {
 				ignoreEclipse();
 			}
 		};
@@ -168,11 +168,11 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testFilteredExceptionGenerateInsideTest() {
+	public void testIgnoreExceptionGenerateInsideTest() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
 		Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION))) {
-			{
+			protected void ignore() {
 				ignoreJunit();
 				ignoreEclipse();
 				ignoreNoise();
@@ -226,17 +226,17 @@ public class BacktraceTest {
 	public void testFilteredIgnoringMessage() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
-		Iterable<String> backtrace = new QuietBacktrace(EXCEPTION);
+		Iterable<String> backtrace = new QuietRubyBacktrace(EXCEPTION);
 
 		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
 		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
 	}
 
 	@Test
-	public void testFilteredIgnoringMessage$UsingNewQuiteBacktraceEmptyInstanceAsFactoryOfQuietBacktrace() {
+	public void testFilteredIgnoringMessage$UsingNewQuiteBacktraceEmptyInstanceAsFactoryOfQuietRubyBacktrace() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
-		Iterable<String> backtrace = new QuietBacktrace().newBacktrace(EXCEPTION);
+		Iterable<String> backtrace = new QuietRubyBacktrace().newBacktrace(EXCEPTION);
 
 		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
 		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));

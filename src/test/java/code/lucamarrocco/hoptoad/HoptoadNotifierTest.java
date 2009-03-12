@@ -13,7 +13,8 @@ import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-	protected static final String API_KEY = "f2ea9204c0e691712f40a16bf9a2c2bc";
+	public static final String API_KEY = "f2ea9204c0e691712f40a16bf9a2c2bc";
+	
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
 	protected static final Map<String, Object> REQUEST = new HashMap<String, Object>();
 	protected static final Map<String, Object> SESSION = new HashMap<String, Object>();
@@ -250,7 +251,7 @@ public class HoptoadNotifierTest {
 	@Test
 	public void testSendExceptionNoticeWithFilteredBacktrace() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
-		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new QuietBacktrace(), EXCEPTION, "test").newNotice();
+		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new QuietRubyBacktrace(), EXCEPTION, "test").newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();
 
 		assertThat(notifier.notify(notice), is(201));
@@ -277,7 +278,7 @@ public class HoptoadNotifierTest {
 	public void testSendNoticeWithFilteredBacktrace() {
 		HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
 			{
-				backtrace(new QuietBacktrace(strings(slurp(read("backtrace.txt")))));
+				backtrace(new QuietRubyBacktrace(strings(slurp(read("backtrace.txt")))));
 			}
 		}.newNotice();
 		HoptoadNotifier notifier = new HoptoadNotifier();

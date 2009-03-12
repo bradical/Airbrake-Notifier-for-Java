@@ -83,13 +83,6 @@ public class Backtrace implements Iterable<String> {
 
 	protected void ignore() {
 		ignoreEmptyCause();
-		ignoreCocoon();
-		ignoreMozilla();
-		ignoreSpringSecurity();
-		ignoreMortbayJetty();
-		ignoreJunit();
-		ignoreEclipse();
-		ignoreNoise();
 	}
 
 	private void ignoreEmptyCause() {
