@@ -66,14 +66,12 @@ public class HoptoadAppenderTest {
 
 		HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
-		assertThat(notice.backtrace(), hasItem("\tat code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
 		assertThat(notice.backtrace(), hasItem("Caused by java.lang.NullPointerException"));
-		assertThat(notice.backtrace(), hasItem("\tat code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:9)"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:9)"));
 
-		assertThat(notice.backtrace(), hasItem("\tat sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)"));
-		assertThat(notice.backtrace(), hasItem("\tat java.lang.reflect.Method.invoke(Method.java:597)"));
-		assertThat(notice.backtrace(), hasItem("\tat org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)"));
-		assertThat(notice.backtrace(), hasItem("\tat org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:45)"));
+		assertThat(notice.backtrace(), hasItem("at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)"));
+		assertThat(notice.backtrace(), hasItem("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)"));
 	}
 
 	@Test
@@ -83,10 +81,10 @@ public class HoptoadAppenderTest {
 
 		switchBacktrace.quiet();
 		HoptoadNotice quietNotice = appender.newNoticeFor(newException(ERROR_MESSAGE));
-		assertThat(quietNotice.backtrace(), not(hasItem("\tat sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)")));
+		assertThat(quietNotice.backtrace(), not(hasItem("at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)")));
 
 		switchBacktrace.verbose();
 		HoptoadNotice verboseNotice = appender.newNoticeFor(newException(ERROR_MESSAGE));
-		assertThat(verboseNotice.backtrace(), hasItem("\tat sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)"));
+		assertThat(verboseNotice.backtrace(), hasItem("at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)"));
 	}
 }

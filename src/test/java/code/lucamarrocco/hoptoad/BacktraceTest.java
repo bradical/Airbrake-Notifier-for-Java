@@ -248,7 +248,7 @@ public class BacktraceTest {
 
 		Iterable<String> backtrace = new Backtrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("\tat code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
 	}
 
 	@Test
@@ -257,7 +257,7 @@ public class BacktraceTest {
 
 		Iterable<String> backtrace = new Backtrace().newBacktrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("\tat code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
 	}
 
 	@Test
