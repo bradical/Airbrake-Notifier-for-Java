@@ -1,36 +1,46 @@
 package code.lucamarrocco.hoptoad;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
+import java.io.*;
+import java.net.*;
 
 public class HoptoadNotifier {
 
+	private void addingProperties(HttpURLConnection connection) throws ProtocolException {
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Content-type", "application/x-yaml");
+		connection.setRequestProperty("Accept", "text/xml, application/xml");
+		connection.setRequestMethod("POST");
+	}
+
+	private HttpURLConnection createConnection() throws IOException, MalformedURLException {
+		HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notices/").openConnection();
+		return connection;
+	}
+
 	public int notify(HoptoadNotice notice) {
-		HttpClient httpClient = new HttpClient();
-
-		PostMethod postMethod = new PostMethod("http://hoptoadapp.com/notices/");
-		postMethod.setRequestHeader("Content-type", "application/x-yaml");
-		postMethod.setRequestHeader("Accept", "text/xml, application/xml");
-
-		int statusCode = 0;
-
-		String yaml = new Yaml(notice).toString();
-
 		try {
-			postMethod.setRequestBody(yaml);
-			statusCode = httpClient.executeMethod(postMethod);
-			if (statusCode != 201) {
-				System.out.println(yaml);
-				System.out.println(postMethod.getResponseBodyAsString());
-			}
+			HttpURLConnection toHoptoad = createConnection();
+			addingProperties(toHoptoad);
+			return send(new Yaml(notice).toString(), toHoptoad);
 		} catch (Exception e) {
-			// DO NOT log this exception!
-			System.out.println(yaml);
-			e.printStackTrace();
-		} finally {
-			postMethod.releaseConnection();
+			err(notice, e);
 		}
+		return 0;
+	}
 
+	private void err(HoptoadNotice notice, Exception e) {
+		System.out.println(notice.toString());
+		e.printStackTrace();
+	}
+
+	private int send(String yaml, HttpURLConnection connection) throws IOException {
+		int statusCode;
+		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+		writer.write(yaml);
+		writer.close();
+
+		statusCode = connection.getResponseCode();
 		return statusCode;
 	}
+
 }
