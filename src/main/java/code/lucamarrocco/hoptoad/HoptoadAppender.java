@@ -1,48 +1,40 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import org.apache.log4j.*;
 import org.apache.log4j.spi.*;
 
 public class HoptoadAppender extends AppenderSkeleton {
-	private HoptoadNotifier hoptoadNotifier = new HoptoadNotifier();
+	private final HoptoadNotifier hoptoadNotifier = new HoptoadNotifier();
 
 	private String apiKey;
 
 	private String env;
-	
+
 	private boolean enabled;
 
 	private Backtrace backtrace = new QuietRubyBacktrace();
-	
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
 
 	public HoptoadAppender() {
 		setThreshold(Level.ERROR);
 	}
 
-	public HoptoadAppender(String apiKey) {
+	public HoptoadAppender(final String apiKey) {
 		setApi_key(apiKey);
 	}
 
-	public HoptoadAppender(String apiKey, Backtrace backtrace) {
+	public HoptoadAppender(final String apiKey, final Backtrace backtrace) {
 		setApi_key(apiKey);
 		setBacktrace(backtrace);
 	}
 
-	public void setEnv(String env) {
-		this.env = env;
-	}
-
-	public void setApi_key(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
 	@Override
 	protected void append(final LoggingEvent loggingEvent) {
-		if(!enabled) return;
-		
+		if (!enabled) return;
+
 		if (thereIsThrowableIn(loggingEvent)) {
 			notifyThrowableIn(loggingEvent);
 		}
@@ -51,11 +43,11 @@ public class HoptoadAppender extends AppenderSkeleton {
 	@Override
 	public void close() {}
 
-	public HoptoadNotice newNoticeFor(Throwable throwable) {
+	public HoptoadNotice newNoticeFor(final Throwable throwable) {
 		return new HoptoadNoticeBuilderUsingFilterdSystemProperties(apiKey, backtrace, throwable, env).newNotice();
 	}
 
-	private int notifyThrowableIn(LoggingEvent loggingEvent) {
+	private int notifyThrowableIn(final LoggingEvent loggingEvent) {
 		return hoptoadNotifier.notify(newNoticeFor(throwable(loggingEvent)));
 	}
 
@@ -64,15 +56,27 @@ public class HoptoadAppender extends AppenderSkeleton {
 		return false;
 	}
 
-	private boolean thereIsThrowableIn(LoggingEvent loggingEvent) {
+	public void setApi_key(final String apiKey) {
+		this.apiKey = apiKey;
+	}
+
+	public void setBacktrace(final Backtrace backtrace) {
+		this.backtrace = backtrace;
+	}
+
+	public void setEnabled(final boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public void setEnv(final String env) {
+		this.env = env;
+	}
+
+	private boolean thereIsThrowableIn(final LoggingEvent loggingEvent) {
 		return loggingEvent.getThrowableInformation() != null;
 	}
 
 	private Throwable throwable(final LoggingEvent loggingEvent) {
 		return loggingEvent.getThrowableInformation().getThrowable();
-	}
-
-	public void setBacktrace(Backtrace backtrace) {
-		this.backtrace = backtrace;
 	}
 }

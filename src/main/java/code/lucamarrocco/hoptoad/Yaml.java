@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import java.util.*;
@@ -6,7 +10,7 @@ public class Yaml {
 
 	private final StringBuilder yaml = new StringBuilder();
 
-	public Yaml(HoptoadNotice notice) {
+	public Yaml(final HoptoadNotice notice) {
 		notice();
 		{
 			session();
@@ -20,31 +24,32 @@ public class Yaml {
 
 			backtraces();
 			{
-				for (String backtrace : notice.backtrace()) {
+				for (final String backtrace : notice.backtrace()) {
 					backtrace(backtrace);
 				}
 			}
-		};
+		}
+		;
 	}
 
-	private void api_key(String string) {
+	private void api_key(final String string) {
 		append("  api_key: " + string + "\n");
 	}
 
-	private void append(Map<String, ?> map) {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (String key : map.keySet()) {
+	private void append(final Map<String, ?> map) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		for (final String key : map.keySet()) {
 			stringBuilder.append("    " + key + ": " + map.get(key) + ",\n");
 		}
 		stringBuilder.append("\n");
 		append(stringBuilder.toString().replaceAll(",\n\n$", "\n"));
 	}
 
-	private void append(String string) {
+	private void append(final String string) {
 		yaml.append(string);
 	}
 
-	private void backtrace(String string) {
+	private void backtrace(final String string) {
 		append("  - " + string + "\n");
 	}
 
@@ -52,17 +57,17 @@ public class Yaml {
 		append("  backtrace: \n");
 	}
 
-	private void environment(Map map) {
+	private void environment(final Map map) {
 		append("  environment: {\n");
 		append(map);
 		append("  }\n");
 	}
 
-	private void error_class(String string) {
+	private void error_class(final String string) {
 		append("  error_class: " + string + "\n");
 	}
 
-	private void error_message(String string) {
+	private void error_message(final String string) {
 		append("  error_message: " + string + "\n");
 	}
 

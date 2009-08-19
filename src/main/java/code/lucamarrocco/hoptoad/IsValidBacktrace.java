@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import org.hamcrest.*;
@@ -9,11 +13,11 @@ public class IsValidBacktrace<T> extends BaseMatcher<T> {
 		return new IsValidBacktrace();
 	}
 
-	public void describeTo(Description description) {
+	public void describeTo(final Description description) {
 		description.appendText("valid backtrace");
 	}
 
-	public boolean matches(Object item) {
+	public boolean matches(final Object item) {
 		return item.toString().matches("[^:]*:\\d+.*");
 	}
 

@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import static code.lucamarrocco.hoptoad.Exceptions.*;
@@ -22,8 +26,60 @@ public class BacktraceTest {
 	}
 
 	@Test
+	public void testExceptionToRubyBacktrace() {
+		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+
+		final Iterable<String> backtrace = new RubyBacktrace(EXCEPTION);
+
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+	}
+
+	@Test
+	public void testExceptionToRubyBacktrace$UsingNewRubyBacktraceEmptyInstanceAsFactoryOfRubyBacktrace() {
+		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+
+		final Iterable<String> backtrace = new RubyBacktrace().newBacktrace(EXCEPTION);
+
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+	}
+
+	@Test
+	public void testFilteredIgnoringMessage() {
+		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+
+		final Iterable<String> backtrace = new QuietRubyBacktrace(EXCEPTION);
+
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
+	}
+
+	@Test
+	public void testFilteredIgnoringMessage$UsingNewQuiteBacktraceEmptyInstanceAsFactoryOfQuietRubyBacktrace() {
+		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+
+		final Iterable<String> backtrace = new QuietRubyBacktrace().newBacktrace(EXCEPTION);
+
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
+	}
+
+	@Test
+	public void testFilteredSafeCausedByTest() {
+		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+
+		final Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION)));
+
+		assertThat(backtrace, not(hasItem("Caused by: java.lang.NullPointerException")));
+		assertThat(backtrace, hasItem("Caused by java.lang.NullPointerException"));
+
+		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
+		assertThat(backtrace, hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass"));
+	}
+
+	@Test
 	public void testIgnoreCocoonBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
 			protected void ignore() {
 				ignoreCocoon();
 			}
@@ -47,116 +103,9 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testIgnoreMozillaBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			protected void ignore() {
-				ignoreMozilla();
-			}
-		};
-
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:523)")));
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptRuntime.call(ScriptRuntime.java:1,244)")));
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.continuations.ContinuationInterpreter.interpret(ContinuationInterpreter.java:1,134)")));
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptRuntime.call(ScriptRuntime.java:1,244)")));
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptableObject.callMethod(ScriptableObject.java:1,591)")));
-		assertThat(backtrace, not(hasItem("org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:523)")));
-	}
-
-	@Test
-	public void testIgnoreMortbayJettyBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			protected void ignore() {
-				ignoreMortbayJetty();
-			}
-		};
-
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:206)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:729)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:380)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:505)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:843)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:211)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:647)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.Server.handle(Server.java:324)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1,088)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:360)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:487)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:395)")));
-		assertThat(backtrace, not(hasItem("org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:488)")));
-	}
-
-	@Test
-	public void testIgnoreSpringBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			protected void ignore() {
-				ignoreSpringSecurity();
-			}
-		};
-
-		assertThat(backtrace, not(hasItem("org.springframework.security.context.HttpSessionContextIntegrationFilter.doFilterHttp(HttpSessionContextIntegrationFilter.java:235)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.intercept.web.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:83)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.providers.anonymous.AnonymousProcessingFilter.doFilterHttp(AnonymousProcessingFilter.java:105)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.AbstractProcessingFilter.doFilterHttp(AbstractProcessingFilter.java:271)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.basicauth.BasicProcessingFilter.doFilterHttp(BasicProcessingFilter.java:173)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.ExceptionTranslationFilter.doFilterHttp(ExceptionTranslationFilter.java:101)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.logout.LogoutFilter.doFilterHttp(LogoutFilter.java:89)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.rememberme.RememberMeProcessingFilter.doFilterHttp(RememberMeProcessingFilter.java:116)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SessionFixationProtectionFilter.doFilterHttp(SessionFixationProtectionFilter.java:67)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SpringSecurityFilter.doFilter(SpringSecurityFilter.java:53)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.util.FilterChainProxy.doFilter(FilterChainProxy.java:174)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter.doFilterHttp(SecurityContextHolderAwareRequestFilter.java:91)")));
-		assertThat(backtrace, not(hasItem("org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:167)")));
-	}
-
-	@Test
-	public void testIgnoreIgnomreCommonsBacktrace() {
-		Iterable<String> backtrace = new QuietRubyBacktrace(backtrace());
-		Iterable<String> filteredBacktrace = new QuietRubyBacktrace(filteredBacktrace());
-
-		assertEquals(filteredBacktrace.toString(), backtrace.toString());
-	}
-
-	@Test
-	public void testIgnoreNoiseBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			protected void ignore() {
-				ignoreNoise();
-			}
-		};
-
-		assertThat(backtrace, not(hasItem("inv1.invoke(:-1)")));
-		assertThat(backtrace, not(hasItem("javax.servlet.http.HttpServlet.service(HttpServlet.java:820)")));
-		assertThat(backtrace, not(hasItem("sun.reflect.GeneratedMethodAccessor338.invoke(null:-1)")));
-		assertThat(backtrace, not(hasItem("sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)")));
-		assertThat(backtrace, not(hasItem("java.lang.reflect.Method.invoke(Method.java:597)")));
-	}
-
-	@Test
-	public void testIgnoreJunitBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
-			protected void ignore() {
-				ignoreJunit();
-			}
-		};
-
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)")));
-		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)")));
-	}
-
-	@Test
 	public void testIgnoreEclipseBacktrace() {
-		Iterable<String> backtrace = new Backtrace(backtrace()) {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
 			protected void ignore() {
 				ignoreEclipse();
 			}
@@ -171,7 +120,8 @@ public class BacktraceTest {
 	public void testIgnoreExceptionGenerateInsideTest() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
-		Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION))) {
+		final Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION))) {
+			@Override
 			protected void ignore() {
 				ignoreJunit();
 				ignoreEclipse();
@@ -199,54 +149,123 @@ public class BacktraceTest {
 	}
 
 	@Test
-	public void testNotValidaBacktrace() {
-		assertThat("Caused by: java.lang.NullPointerException", is(not(validBacktrace())));
+	public void testIgnoreIgnomreCommonsBacktrace() {
+		final Iterable<String> backtrace = new QuietRubyBacktrace(backtrace());
+		final Iterable<String> filteredBacktrace = new QuietRubyBacktrace(filteredBacktrace());
+
+		assertEquals(filteredBacktrace.toString(), backtrace.toString());
 	}
 
 	@Test
-	public void testValidaBacktrace() {
-		assertThat("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)", is(validBacktrace()));
-		assertThat("vendors/rails/actionpack/lib/action_controller/filter.rb:579:in `call_filters'", is(validBacktrace()));
+	public void testIgnoreJunitBacktrace() {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
+			protected void ignore() {
+				ignoreJunit();
+			}
+		};
+
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)")));
+		assertThat(backtrace, not(hasItem("org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)")));
 	}
 
 	@Test
-	public void testFilteredSafeCausedByTest() {
-		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+	public void testIgnoreMortbayJettyBacktrace() {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
+			protected void ignore() {
+				ignoreMortbayJetty();
+			}
+		};
 
-		Iterable<String> backtrace = new Backtrace(strings(ExceptionUtils.getStackTrace(EXCEPTION)));
-
-		assertThat(backtrace, not(hasItem("Caused by: java.lang.NullPointerException")));
-		assertThat(backtrace, hasItem("Caused by java.lang.NullPointerException"));
-
-		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
-		assertThat(backtrace, hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass"));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:206)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:729)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:380)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:505)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:843)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:211)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:647)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.Server.handle(Server.java:324)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1,088)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:360)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:487)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:395)")));
+		assertThat(backtrace, not(hasItem("org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:488)")));
 	}
 
 	@Test
-	public void testFilteredIgnoringMessage() {
-		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+	public void testIgnoreMozillaBacktrace() {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
+			protected void ignore() {
+				ignoreMozilla();
+			}
+		};
 
-		Iterable<String> backtrace = new QuietRubyBacktrace(EXCEPTION);
-
-		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
-		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:523)")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptRuntime.call(ScriptRuntime.java:1,244)")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.continuations.ContinuationInterpreter.interpret(ContinuationInterpreter.java:1,134)")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptRuntime.call(ScriptRuntime.java:1,244)")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.ScriptableObject.callMethod(ScriptableObject.java:1,591)")));
+		assertThat(backtrace, not(hasItem("org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:523)")));
 	}
 
 	@Test
-	public void testFilteredIgnoringMessage$UsingNewQuiteBacktraceEmptyInstanceAsFactoryOfQuietRubyBacktrace() {
-		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
+	public void testIgnoreNoiseBacktrace() {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
+			protected void ignore() {
+				ignoreNoise();
+			}
+		};
 
-		Iterable<String> backtrace = new QuietRubyBacktrace().newBacktrace(EXCEPTION);
+		assertThat(backtrace, not(hasItem("inv1.invoke(:-1)")));
+		assertThat(backtrace, not(hasItem("javax.servlet.http.HttpServlet.service(HttpServlet.java:820)")));
+		assertThat(backtrace, not(hasItem("sun.reflect.GeneratedMethodAccessor338.invoke(null:-1)")));
+		assertThat(backtrace, not(hasItem("sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)")));
+		assertThat(backtrace, not(hasItem("java.lang.reflect.Method.invoke(Method.java:597)")));
+	}
 
-		assertThat(backtrace, not(hasItem("java.lang.RuntimeException: undefined method `password' for nil:NilClass")));
-		assertThat(backtrace, not(hasItem("java.lang.RuntimeException undefined method `password' for nilNilClass")));
+	@Test
+	public void testIgnoreSpringBacktrace() {
+		final Iterable<String> backtrace = new Backtrace(backtrace()) {
+			@Override
+			protected void ignore() {
+				ignoreSpringSecurity();
+			}
+		};
+
+		assertThat(backtrace, not(hasItem("org.springframework.security.context.HttpSessionContextIntegrationFilter.doFilterHttp(HttpSessionContextIntegrationFilter.java:235)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.intercept.web.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:83)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.providers.anonymous.AnonymousProcessingFilter.doFilterHttp(AnonymousProcessingFilter.java:105)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.AbstractProcessingFilter.doFilterHttp(AbstractProcessingFilter.java:271)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.basicauth.BasicProcessingFilter.doFilterHttp(BasicProcessingFilter.java:173)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.ExceptionTranslationFilter.doFilterHttp(ExceptionTranslationFilter.java:101)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.logout.LogoutFilter.doFilterHttp(LogoutFilter.java:89)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.rememberme.RememberMeProcessingFilter.doFilterHttp(RememberMeProcessingFilter.java:116)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SessionFixationProtectionFilter.doFilterHttp(SessionFixationProtectionFilter.java:67)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SpringSecurityFilter.doFilter(SpringSecurityFilter.java:53)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.util.FilterChainProxy.doFilter(FilterChainProxy.java:174)")));
+		assertThat(backtrace, not(hasItem("org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter.doFilterHttp(SecurityContextHolderAwareRequestFilter.java:91)")));
+		assertThat(backtrace, not(hasItem("org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:167)")));
 	}
 
 	@Test
 	public void testJavaBacktrace() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
-		Iterable<String> backtrace = new Backtrace(EXCEPTION);
+		final Iterable<String> backtrace = new Backtrace(EXCEPTION);
 
 		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
 	}
@@ -255,27 +274,19 @@ public class BacktraceTest {
 	public void testJavaBacktrace$UsingNewBacktraceEmptyInstanceAsFactoryOfBacktrace() {
 		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
 
-		Iterable<String> backtrace = new Backtrace().newBacktrace(EXCEPTION);
+		final Iterable<String> backtrace = new Backtrace().newBacktrace(EXCEPTION);
 
 		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
 	}
 
 	@Test
-	public void testExceptionToRubyBacktrace() {
-		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
-
-		Iterable<String> backtrace = new RubyBacktrace(EXCEPTION);
-
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+	public void testNotValidaBacktrace() {
+		assertThat("Caused by: java.lang.NullPointerException", is(not(validBacktrace())));
 	}
 
-
 	@Test
-	public void testExceptionToRubyBacktrace$UsingNewRubyBacktraceEmptyInstanceAsFactoryOfRubyBacktrace() {
-		final Throwable EXCEPTION = newException(ERROR_MESSAGE);
-
-		Iterable<String> backtrace = new RubyBacktrace().newBacktrace(EXCEPTION);
-
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+	public void testValidaBacktrace() {
+		assertThat("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)", is(validBacktrace()));
+		assertThat("vendors/rails/actionpack/lib/action_controller/filter.rb:579:in `call_filters'", is(validBacktrace()));
 	}
 }

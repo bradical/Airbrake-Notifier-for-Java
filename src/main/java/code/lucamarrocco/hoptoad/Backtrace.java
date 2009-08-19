@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
@@ -8,54 +12,29 @@ import java.util.*;
 
 public class Backtrace implements Iterable<String> {
 
-	private String messageIn(Throwable throwable) {
-		String message = throwable.getMessage();
-		if (message == null) message = throwable.getClass().getName();
-		return message;
-	}
-
-	private void toBacktrace(Throwable throwable) {
-		if (throwable == null) return;
-
-		backtrace.add(causedBy(throwable));
-		for (StackTraceElement element : throwable.getStackTrace())
-			backtrace.add(toBacktrace(element));
-
-		toBacktrace(throwable.getCause());
-	}
-
-	private String causedBy(Throwable throwable) {
-		return MessageFormat.format("Caused by {0}", messageIn(throwable));
-	}
-
-	private String toBacktrace(StackTraceElement element) {
-		return toBacktrace(element.getClassName(), element.getFileName(), element.getLineNumber(), element.getMethodName());
-	}
-
-	protected String toBacktrace(String className, String fileName, int lineNumber, String methodName) {
-		return MessageFormat.format("at {0}.{1}({2}:{3})", className, methodName, fileName, lineNumber);
-	}
-
 	private final List<String> backtrace = new LinkedList<String>();
 
 	private final List<String> ignoreRules = new LinkedList<String>();
 
 	private final List<String> filteredBacktrace = new LinkedList<String>();
 
-	public Backtrace(List<String> backtrace) {
+	protected Backtrace() {}
+
+	public Backtrace(final List<String> backtrace) {
 		this.backtrace.addAll(backtrace);
 		ignore();
 		filter();
 	}
 
-	public Backtrace(Throwable throwable) {
+	public Backtrace(final Throwable throwable) {
 		toBacktrace(throwable);
 		ignore(".*" + messageIn(throwable) + ".*");
 		ignore();
 		filter();
 	}
 
-	protected Backtrace() {
+	private String causedBy(final Throwable throwable) {
+		return MessageFormat.format("Caused by {0}", messageIn(throwable));
 	}
 
 	protected void filter() {
@@ -63,11 +42,15 @@ public class Backtrace implements Iterable<String> {
 	}
 
 	private final List<String> filter(final List<String> backtrace) {
-		ListIterator<String> iterator = backtrace.listIterator();
+		final ListIterator<String> iterator = backtrace.listIterator();
 		while (iterator.hasNext()) {
 			String string = iterator.next();
-			if (mustBeIgnored(string)) continue;
-			if (not(validBacktrace()).matches(string)) string = removeDobuleDot(string);
+			if (mustBeIgnored(string)) {
+				continue;
+			}
+			if (not(validBacktrace()).matches(string)) {
+				string = removeDobuleDot(string);
+			}
 			filteredBacktrace.add(string);
 		}
 
@@ -78,11 +61,7 @@ public class Backtrace implements Iterable<String> {
 		ignoreEmptyCause();
 	}
 
-	private void ignoreEmptyCause() {
-		ignore("^Caused by $");
-	}
-
-	protected void ignore(String ignoreRule) {
+	protected void ignore(final String ignoreRule) {
 		ignoreRules.add(ignoreRule);
 	}
 
@@ -109,6 +88,10 @@ public class Backtrace implements Iterable<String> {
 	protected void ignoreEclipse() {
 		ignore(".*org.eclipse.jdt.internal.junit4.runner.*");
 		ignore(".*org.eclipse.jdt.internal.junit.runner.*");
+	}
+
+	private void ignoreEmptyCause() {
+		ignore("^Caused by $");
 	}
 
 	protected void ignoreJunit() {
@@ -171,8 +154,16 @@ public class Backtrace implements Iterable<String> {
 		return filteredBacktrace.iterator();
 	}
 
-	private boolean mustBeIgnored(String string) {
-		for (String ignore : ignoreRules) {
+	private String messageIn(final Throwable throwable) {
+		String message = throwable.getMessage();
+		if (message == null) {
+			message = throwable.getClass().getName();
+		}
+		return message;
+	}
+
+	private boolean mustBeIgnored(final String string) {
+		for (final String ignore : ignoreRules) {
 			if (string.matches(ignore)) return true;
 		}
 		return false;
@@ -182,20 +173,39 @@ public class Backtrace implements Iterable<String> {
 		return filteredBacktrace.isEmpty();
 	}
 
-	private String removeDobuleDot(String string) {
+	public Backtrace newBacktrace(final Throwable throwable) {
+		return new Backtrace(throwable);
+	}
+
+	private String removeDobuleDot(final String string) {
 		return string.replaceAll(":", "");
+	}
+
+	private String toBacktrace(final StackTraceElement element) {
+		return toBacktrace(element.getClassName(), element.getFileName(), element.getLineNumber(), element.getMethodName());
+	}
+
+	protected String toBacktrace(final String className, final String fileName, final int lineNumber, final String methodName) {
+		return MessageFormat.format("at {0}.{1}({2}:{3})", className, methodName, fileName, lineNumber);
+	}
+
+	private void toBacktrace(final Throwable throwable) {
+		if (throwable == null) return;
+
+		backtrace.add(causedBy(throwable));
+		for (final StackTraceElement element : throwable.getStackTrace()) {
+			backtrace.add(toBacktrace(element));
+		}
+
+		toBacktrace(throwable.getCause());
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (String string : filteredBacktrace) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		for (final String string : filteredBacktrace) {
 			stringBuilder.append(string).append("\n");
 		}
 		return stringBuilder.toString();
-	}
-
-	public Backtrace newBacktrace(Throwable throwable) {
-		return new Backtrace(throwable);
 	}
 }

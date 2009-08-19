@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import java.io.*;
@@ -5,7 +9,7 @@ import java.net.*;
 
 public class HoptoadNotifier {
 
-	private void addingProperties(HttpURLConnection connection) throws ProtocolException {
+	private void addingProperties(final HttpURLConnection connection) throws ProtocolException {
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-type", "application/x-yaml");
 		connection.setRequestProperty("Accept", "text/xml, application/xml");
@@ -13,29 +17,29 @@ public class HoptoadNotifier {
 	}
 
 	private HttpURLConnection createConnection() throws IOException, MalformedURLException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notices/").openConnection();
+		final HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notices/").openConnection();
 		return connection;
 	}
 
-	public int notify(HoptoadNotice notice) {
+	private void err(final HoptoadNotice notice, final Exception e) {
+		System.out.println(notice.toString());
+		e.printStackTrace();
+	}
+
+	public int notify(final HoptoadNotice notice) {
 		try {
-			HttpURLConnection toHoptoad = createConnection();
+			final HttpURLConnection toHoptoad = createConnection();
 			addingProperties(toHoptoad);
 			return send(new Yaml(notice).toString(), toHoptoad);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			err(notice, e);
 		}
 		return 0;
 	}
 
-	private void err(HoptoadNotice notice, Exception e) {
-		System.out.println(notice.toString());
-		e.printStackTrace();
-	}
-
-	private int send(String yaml, HttpURLConnection connection) throws IOException {
+	private int send(final String yaml, final HttpURLConnection connection) throws IOException {
 		int statusCode;
-		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+		final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
 		writer.write(yaml);
 		writer.close();
 

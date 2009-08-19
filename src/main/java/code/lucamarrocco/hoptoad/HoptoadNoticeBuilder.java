@@ -1,3 +1,7 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import static java.util.Arrays.*;
@@ -12,52 +16,54 @@ public class HoptoadNoticeBuilder {
 
 	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
 
-	private Map<String, Object> environment = new TreeMap<String, Object>();
+	private final Map<String, Object> environment = new TreeMap<String, Object>();
 
 	private Map<String, Object> request = new TreeMap<String, Object>();
 
 	private Map<String, Object> session = new TreeMap<String, Object>();
 
-	private List<String> environmentFilters = new LinkedList<String>();
+	private final List<String> environmentFilters = new LinkedList<String>();
 
 	private Backtrace backtraceBuilder = new Backtrace();
 
-	public HoptoadNoticeBuilder(String apiKey, String errorMessage) {
-		this(apiKey, errorMessage, "test");
-	}
-
-	public HoptoadNoticeBuilder(String apiKey, String errorMessage, String env) {
-		apiKey(apiKey);
-		errorMessage(errorMessage);
-		env(env);
-	}
-
-	public HoptoadNoticeBuilder(String apiKey, Throwable throwable) {
-		this(apiKey, new Backtrace(), throwable, "test");
-	}
-
-	public HoptoadNoticeBuilder(String apiKey, Throwable throwable, String env) {
-		this(apiKey, new Backtrace(), throwable, env);
-	}
-
-	public HoptoadNoticeBuilder(String apiKey, Backtrace backtraceBuilder,  Throwable throwable, String env) {
+	public HoptoadNoticeBuilder(final String apiKey, final Backtrace backtraceBuilder, final Throwable throwable, final String env) {
 		this(apiKey, throwable.getMessage(), env);
 		this.backtraceBuilder = backtraceBuilder;
 		backtrace(throwable);
 	}
 
-	private void backtrace(Throwable throwable) {
-		backtrace(backtraceBuilder.newBacktrace(throwable));
+	public HoptoadNoticeBuilder(final String apiKey, final String errorMessage) {
+		this(apiKey, errorMessage, "test");
 	}
 
-	private void apiKey(String apiKey) {
-		if (notDefined(apiKey)) error("The API key for the project this error is from (required). Get this from the project's page in Hoptoad.");
+	public HoptoadNoticeBuilder(final String apiKey, final String errorMessage, final String env) {
+		apiKey(apiKey);
+		errorMessage(errorMessage);
+		env(env);
+	}
+
+	public HoptoadNoticeBuilder(final String apiKey, final Throwable throwable) {
+		this(apiKey, new Backtrace(), throwable, "test");
+	}
+
+	public HoptoadNoticeBuilder(final String apiKey, final Throwable throwable, final String env) {
+		this(apiKey, new Backtrace(), throwable, env);
+	}
+
+	private void apiKey(final String apiKey) {
+		if (notDefined(apiKey)) {
+			error("The API key for the project this error is from (required). Get this from the project's page in Hoptoad.");
+		}
 		this.apiKey = apiKey;
 	}
 
 	/** An array where each element is a line of the backtrace (required, but can be empty). */
-	protected void backtrace(Backtrace backtrace) {
+	protected void backtrace(final Backtrace backtrace) {
 		this.backtrace = backtrace;
+	}
+
+	private void backtrace(final Throwable throwable) {
+		backtrace(backtraceBuilder.newBacktrace(throwable));
 	}
 
 	protected void ec2EnvironmentFilters() {
@@ -67,25 +73,27 @@ public class HoptoadNoticeBuilder {
 		environmentFilter("EC2_CERT");
 	}
 
-	private void env(String env) {
+	private void env(final String env) {
 		this.environment.put("RAILS_ENV", env);
 	}
 
 	/** A hash of the environment data that existed when the error occurred (required, but can be empty). */
-	protected void environment(Map environment) {
+	protected void environment(final Map environment) {
 		this.environment.putAll(environment);
 	}
 
-	public void environmentFilter(String filter) {
+	public void environmentFilter(final String filter) {
 		environmentFilters.add(filter);
 	}
 
-	private void error(String message) {
+	private void error(final String message) {
 		throw new RuntimeException(message);
 	}
 
-	private void errorMessage(String errorMessage) {
-		if (notDefined(errorMessage)) error("The message that describes the error (ie. \"undefined method `password' for nil:NilClass\").");
+	private void errorMessage(final String errorMessage) {
+		if (notDefined(errorMessage)) {
+			error("The message that describes the error (ie. \"undefined method `password' for nil:NilClass\").");
+		}
 		this.errorMessage = errorMessage;
 	}
 
@@ -99,17 +107,17 @@ public class HoptoadNoticeBuilder {
 		return new HoptoadNotice(apiKey, errorMessage, backtrace, request, session, environment, environmentFilters);
 	}
 
-	private boolean notDefined(Object object) {
+	private boolean notDefined(final Object object) {
 		return object == null;
 	}
 
 	/** A hash of the request parameters that were given when the error occurred (required, but can be empty). */
-	protected void request(Map request) {
+	protected void request(final Map request) {
 		this.request = request;
 	}
 
 	/** A hash of the session data that existed when the error occurred (required, but can be empty). */
-	protected void session(Map session) {
+	protected void session(final Map session) {
 		this.session = session;
 	}
 

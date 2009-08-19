@@ -1,14 +1,26 @@
+// Modified or written by Luca Marrocco for inclusion with hoptoad.
+// Copyright (c) 2009 Luca Marrocco.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
 package code.lucamarrocco.hoptoad;
 
 import java.util.*;
 
-
 public class QuietRubyBacktrace extends RubyBacktrace {
 
-	public QuietRubyBacktrace(Throwable throwable) {
+	public QuietRubyBacktrace() {
+		super();
+	}
+
+	protected QuietRubyBacktrace(final List<String> backtrace) {
+		super(backtrace);
+	}
+
+	public QuietRubyBacktrace(final Throwable throwable) {
 		super(throwable);
 	}
 
+	@Override
 	protected void ignore() {
 		ignoreCocoon();
 		ignoreMozilla();
@@ -19,15 +31,8 @@ public class QuietRubyBacktrace extends RubyBacktrace {
 		ignoreNoise();
 	}
 
-	public QuietRubyBacktrace() {
-		super();
-	}
-
-	protected QuietRubyBacktrace(List<String> backtrace) {
-		super(backtrace);
-	}
-
-	public Backtrace newBacktrace(Throwable throwable) {
+	@Override
+	public Backtrace newBacktrace(final Throwable throwable) {
 		return new QuietRubyBacktrace(throwable);
 	}
 
