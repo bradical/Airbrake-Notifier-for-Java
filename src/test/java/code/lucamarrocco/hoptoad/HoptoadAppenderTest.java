@@ -37,9 +37,9 @@ public class HoptoadAppenderTest {
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
 		assertThat(notice.backtrace(), hasItem("Caused by java.lang.NullPointerException"));
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:9:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:13:in `newException'"));
 	}
 
 	@Test
@@ -48,9 +48,9 @@ public class HoptoadAppenderTest {
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:15)"));
 		assertThat(notice.backtrace(), hasItem("Caused by java.lang.NullPointerException"));
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:9)"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:13)"));
 
 		assertThat(notice.backtrace(), hasItem("at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java-2)"));
 		assertThat(notice.backtrace(), hasItem("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)"));
@@ -62,9 +62,9 @@ public class HoptoadAppenderTest {
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
 		assertThat(notice.backtrace(), hasItem("Caused by java.lang.NullPointerException"));
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:9:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:13:in `newException'"));
 	}
 
 	@Test
@@ -73,9 +73,9 @@ public class HoptoadAppenderTest {
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
 		assertThat(notice.backtrace(), hasItem("Caused by java.lang.NullPointerException"));
-		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:9:in `newException'"));
+		assertThat(notice.backtrace(), hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:13:in `newException'"));
 	}
 
 	@Test

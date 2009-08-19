@@ -31,7 +31,7 @@ public class BacktraceTest {
 
 		final Iterable<String> backtrace = new RubyBacktrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class BacktraceTest {
 
 		final Iterable<String> backtrace = new RubyBacktrace().newBacktrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:11:in `newException'"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
 	}
 
 	@Test
@@ -267,7 +267,7 @@ public class BacktraceTest {
 
 		final Iterable<String> backtrace = new Backtrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:15)"));
 	}
 
 	@Test
@@ -276,7 +276,7 @@ public class BacktraceTest {
 
 		final Iterable<String> backtrace = new Backtrace().newBacktrace(EXCEPTION);
 
-		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:11)"));
+		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.newException(Exceptions.java:15)"));
 	}
 
 	@Test

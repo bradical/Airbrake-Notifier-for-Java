@@ -17,7 +17,7 @@ import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-	public static final String API_KEY = "0888f66cb50a4a35f6fa90edad7f5ad2";
+	public static final String API_KEY = "ff56831ee42b48db0c98d06716e13442";
 
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
 	protected static final Map<String, Object> REQUEST = new HashMap<String, Object>();
