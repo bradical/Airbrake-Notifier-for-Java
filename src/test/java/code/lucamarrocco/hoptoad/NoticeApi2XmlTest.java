@@ -78,7 +78,6 @@ public class NoticeApi2XmlTest {
 	}
 
 	private String xml(NoticeApi2 noticeApi) {
-		System.out.println(noticeApi.toString());
 		return clean(noticeApi.toString());
 	}
 }
