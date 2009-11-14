@@ -6,11 +6,11 @@ package code.lucamarrocco.hoptoad;
 
 import java.util.*;
 
-public class Yaml {
+public class NoticeApi1 {
 
 	private final StringBuilder yaml = new StringBuilder();
 
-	public Yaml(final HoptoadNotice notice) {
+	public NoticeApi1(final HoptoadNotice notice) {
 		notice();
 		{
 			session();
@@ -29,7 +29,6 @@ public class Yaml {
 				}
 			}
 		}
-		;
 	}
 
 	private void api_key(final String string) {

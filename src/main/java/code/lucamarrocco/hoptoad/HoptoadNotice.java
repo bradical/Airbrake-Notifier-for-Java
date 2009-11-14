@@ -24,8 +24,11 @@ public class HoptoadNotice {
 
 	private Map<String, Object> session = new TreeMap<String, Object>();
 
-	public HoptoadNotice(final String apiKey, final String errorMessage, final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session, final Map<String, Object> environment, final List<String> environmentFilters) {
+	private String errorClass;
+
+	public HoptoadNotice(final String apiKey, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session, final Map<String, Object> environment, final List<String> environmentFilters) {
 		this.apiKey = apiKey;
+		this.errorClass = errorClass;
 		this.errorMessage = errorMessage;
 		this.backtrace = backtrace;
 		this.request = request;
@@ -50,7 +53,7 @@ public class HoptoadNotice {
 	}
 
 	public String errorClass() {
-		return getClass().getSimpleName();
+		return errorClass;
 	}
 
 	public String errorMessage() {

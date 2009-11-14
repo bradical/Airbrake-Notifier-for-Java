@@ -186,7 +186,7 @@ public class Backtrace implements Iterable<String> {
 	}
 
 	protected String toBacktrace(final String className, final String fileName, final int lineNumber, final String methodName) {
-		return MessageFormat.format("at {0}.{1}({2}:{3})", className, methodName, fileName, lineNumber);
+		return new BacktraceLine(className, fileName, lineNumber, methodName).toString();
 	}
 
 	private void toBacktrace(final Throwable throwable) {

@@ -26,9 +26,12 @@ public class HoptoadNoticeBuilder {
 
 	private Backtrace backtraceBuilder = new Backtrace();
 
+	private String errorClass;
+
 	public HoptoadNoticeBuilder(final String apiKey, final Backtrace backtraceBuilder, final Throwable throwable, final String env) {
 		this(apiKey, throwable.getMessage(), env);
 		this.backtraceBuilder = backtraceBuilder;
+		errorClass(throwable);
 		backtrace(throwable);
 	}
 
@@ -90,6 +93,14 @@ public class HoptoadNoticeBuilder {
 		throw new RuntimeException(message);
 	}
 
+	private void errorClass(Throwable throwable) {
+		this.errorClass = throwable.getClass().getName();
+	}
+
+	protected boolean errorClassIs(String possibleErrorClass) {
+		return errorClass.equals(possibleErrorClass);
+	}
+
 	private void errorMessage(final String errorMessage) {
 		if (notDefined(errorMessage)) {
 			error("The message that describes the error (ie. \"undefined method `password' for nil:NilClass\").");
@@ -104,7 +115,7 @@ public class HoptoadNoticeBuilder {
 	}
 
 	public HoptoadNotice newNotice() {
-		return new HoptoadNotice(apiKey, errorMessage, backtrace, request, session, environment, environmentFilters);
+		return new HoptoadNotice(apiKey, errorMessage, errorClass, backtrace, request, session, environment, environmentFilters);
 	}
 
 	private boolean notDefined(final Object object) {

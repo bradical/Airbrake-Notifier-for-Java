@@ -17,6 +17,7 @@ import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
+
 	public static final String API_KEY = "ff56831ee42b48db0c98d06716e13442";
 
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
@@ -27,6 +28,10 @@ public class HoptoadNotifierTest {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, Object> EC2 = new HashMap<String, Object>();
+
+	private HoptoadNotify notifierV1;
+
+	private HoptoadNotify notifierV2;
 
 	private <T> Matcher<T> internalServerError() {
 		return new BaseMatcher<T>() {
@@ -55,6 +60,8 @@ public class HoptoadNotifierTest {
 		EC2.put("EC2_PRIVATE_KEY", "EC2_PRIVATE_KEY");
 		EC2.put("AWS_ACCESS", "AWS_ACCESS");
 		EC2.put("EC2_CERT", "EC2_CERT");
+		notifierV1 = new HoptoadNotifier();
+		notifierV2 = new HoptoadNotifierV2();
 	}
 
 	@Test
@@ -89,145 +96,12 @@ public class HoptoadNotifierTest {
 	}
 
 	@Test
-	public void testNewHoptoadUsingBuilderNoticeFromException() {
-		final Exception EXCEPTION = newException(ERROR_MESSAGE);
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.backtrace(), is(notNullValue()));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithBacktrace() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				backtrace(BACKTRACE);
-			}
-		}.newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.backtrace(), is(BACKTRACE));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithEc2FilteredEnvironmentWithSystemProperties() {
-
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-
-			{
-				environment(EC2);
-				ec2EnvironmentFilters();
-			}
-		}.newNotice();
-
-		final Set<String> environmentKeys = notice.environment().keySet();
-
-		assertThat(environmentKeys, not(hasItem("AWS_SECRET")));
-		assertThat(environmentKeys, not(hasItem("EC2_PRIVATE_KEY")));
-		assertThat(environmentKeys, not(hasItem("AWS_ACCESS")));
-		assertThat(environmentKeys, not(hasItem("EC2_CERT")));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithEnvironment() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				environment(ENVIRONMENT);
-			}
-		}.newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.environment().keySet(), hasItem("A_KEY"));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithErrorMessage() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{}
-		}.newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithFilterdEnvironment() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				environmentFilter("A_KEY");
-			}
-		}.newNotice();
-
-		final Set<String> environmentKeys = notice.environment().keySet();
-
-		assertThat(environmentKeys, not(hasItem("A_KEY")));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithRequest() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				request(REQUEST);
-			}
-		}.newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.request(), is(REQUEST));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithSession() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				session(SESSION);
-			}
-		}.newNotice();
-
-		assertThat(notice, is(notNullValue()));
-
-		assertThat(notice.apiKey(), is(API_KEY));
-		assertThat(notice.errorMessage(), is(ERROR_MESSAGE));
-		assertThat(notice.session(), is(SESSION));
-	}
-
-	@Test
-	public void testNewHoptoadUsingBuilderNoticeWithStandardFilteredEnvironmentWithSystemProperties() {
-		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE) {
-			{
-				environment(System.getProperties());
-				standardEnvironmentFilters();
-			}
-		}.newNotice();
-
-		final Set<String> environmentKeys = notice.environment().keySet();
-
-		assertThat(environmentKeys, not(hasItem("java.awt.graphicsenv")));
-		assertThat(environmentKeys, not(hasItem("java.vendor.url")));
-		assertThat(environmentKeys, not(hasItem("java.class.path")));
-		assertThat(environmentKeys, not(hasItem("java.vm.specification")));
-	}
-
-	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeFromExceptionInEnv() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test").newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
@@ -239,61 +113,61 @@ public class HoptoadNotifierTest {
 			}
 
 		}.newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeInEnv() {
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE, "test").newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testSendExceptionNoticeWithFilteredBacktrace() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new QuietRubyBacktrace(), EXCEPTION, "test").newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testSendExceptionToHoptoad() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testSendExceptionToHoptoadUsingRubyBacktrace() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testSendExceptionToHoptoadUsingRubyBacktraceAndFilteredSystemProperties() {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilderUsingFilterdSystemProperties(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
 	public void testSendNoticeToHoptoad() {
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
@@ -303,9 +177,9 @@ public class HoptoadNotifierTest {
 				backtrace(new QuietRubyBacktrace(strings(slurp(read("backtrace.txt")))));
 			}
 		}.newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 
 	@Test
@@ -315,8 +189,8 @@ public class HoptoadNotifierTest {
 				backtrace(new Backtrace(strings(slurp(read("backtrace.txt")))));
 			}
 		}.newNotice();
-		final HoptoadNotifier notifier = new HoptoadNotifier();
 
-		assertThat(notifier.notify(notice), is(201));
+		assertThat(notifierV1.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(201));
 	}
 }

@@ -7,7 +7,7 @@ package code.lucamarrocco.hoptoad;
 import java.io.*;
 import java.net.*;
 
-public class HoptoadNotifier {
+public class HoptoadNotifier implements HoptoadNotify {
 
 	private void addingProperties(final HttpURLConnection connection) throws ProtocolException {
 		connection.setDoOutput(true);
@@ -30,7 +30,7 @@ public class HoptoadNotifier {
 		try {
 			final HttpURLConnection toHoptoad = createConnection();
 			addingProperties(toHoptoad);
-			return send(new Yaml(notice).toString(), toHoptoad);
+			return send(new NoticeApi1(notice).toString(), toHoptoad);
 		} catch (final Exception e) {
 			err(notice, e);
 		}
