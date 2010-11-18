@@ -18,7 +18,13 @@ public class BacktraceLine {
 
 	public BacktraceLine(String line) {
 		String classAndMethodName = line.replaceAll("\\(.*", "").replaceAll("^at ", "");
-		className = classAndMethodName.substring(0, classAndMethodName.lastIndexOf("."));
+
+		int periodSepIndex = classAndMethodName.lastIndexOf(".");
+		if (periodSepIndex > 0) {
+			className = classAndMethodName.substring(0, classAndMethodName.lastIndexOf("."));
+		} else {
+			className = classAndMethodName;
+		}
 		fileName = line.replaceAll("^.*\\(", "").replaceAll(":.*", "");
 		lineNumber = lineNumber(line);
 		methodName = classAndMethodName.substring(classAndMethodName.lastIndexOf(".") + 1);

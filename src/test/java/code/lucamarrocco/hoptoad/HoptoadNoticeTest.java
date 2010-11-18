@@ -5,7 +5,6 @@
 package code.lucamarrocco.hoptoad;
 
 import static code.lucamarrocco.hoptoad.Exceptions.*;
-import static code.lucamarrocco.hoptoad.Slurp.*;
 import static java.util.Arrays.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -17,7 +16,7 @@ import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNoticeTest {
-	
+
 	public static final String API_KEY = "ab2cedccb3c99732b8ea4793d7b53609";
 
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;

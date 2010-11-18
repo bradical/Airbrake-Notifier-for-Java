@@ -103,9 +103,10 @@ public class HoptoadNoticeBuilder {
 
 	private void errorMessage(final String errorMessage) {
 		if (notDefined(errorMessage)) {
-			error("The message that describes the error (ie. \"undefined method `password' for nil:NilClass\").");
+			this.errorMessage = "";
+		} else {
+			this.errorMessage = errorMessage;
 		}
-		this.errorMessage = errorMessage;
 	}
 
 	protected void filteredSystemProperties() {
@@ -129,7 +130,7 @@ public class HoptoadNoticeBuilder {
 
 	/** A hash of the session data that existed when the error occurred (required, but can be empty). */
 	protected void session(final Map session) {
-		this.session = session;
+		this.session.putAll(session);
 	}
 
 	protected void standardEnvironmentFilters() {

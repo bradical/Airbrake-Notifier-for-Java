@@ -61,12 +61,12 @@ public class NoticeApi2XmlTest {
 	public void testNotifier() {
 		assertThat(xml(new NoticeApi2(notice)), containsString("notifier>"));
 	}
-	
+
 	@Test
 	public void testNotifierName() {
 		assertThat(xml(new NoticeApi2(notice)), containsString("<name>hoptoad</name>"));
 	}
-	
+
 	@Test
 	public void testNotifierUrl() {
 		assertThat(xml(new NoticeApi2(notice)), containsString("<url>http://hoptoad.googlecode.com</url>"));
@@ -74,7 +74,7 @@ public class NoticeApi2XmlTest {
 
 	@Test
 	public void testNotifierVersion() {
-		assertThat(xml(new NoticeApi2(notice)), containsString("<version>1.7</version>"));
+		assertThat(xml(new NoticeApi2(notice)), containsString("<version>1.7-socrata-SNAPSHOT</version>"));
 	}
 
 	private String xml(NoticeApi2 noticeApi) {

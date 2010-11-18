@@ -11,13 +11,13 @@ public class HoptoadNotifier implements HoptoadNotify {
 
 	private void addingProperties(final HttpURLConnection connection) throws ProtocolException {
 		connection.setDoOutput(true);
-		connection.setRequestProperty("Content-type", "application/x-yaml");
+		connection.setRequestProperty("Content-type", "text/xml");
 		connection.setRequestProperty("Accept", "text/xml, application/xml");
 		connection.setRequestMethod("POST");
 	}
 
 	private HttpURLConnection createConnection() throws IOException, MalformedURLException {
-		final HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notices/").openConnection();
+		final HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notifier_api/v2/notices").openConnection();
 		return connection;
 	}
 
@@ -30,7 +30,7 @@ public class HoptoadNotifier implements HoptoadNotify {
 		try {
 			final HttpURLConnection toHoptoad = createConnection();
 			addingProperties(toHoptoad);
-			return send(new NoticeApi1(notice).toString(), toHoptoad);
+			return send(new NoticeApi2(notice).toString(), toHoptoad);
 		} catch (final Exception e) {
 			err(notice, e);
 		}

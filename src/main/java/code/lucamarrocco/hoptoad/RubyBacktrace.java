@@ -28,7 +28,13 @@ public class RubyBacktrace extends Backtrace {
 
 	@Override
 	protected String toBacktrace(final String className, final String fileName, final int lineNumber, final String methodName) {
-		if (className.matches(".*\\." + fileName.replaceAll(".java$", ""))) return MessageFormat.format("at {0}.java:{1}:in `{2}''", className, lineNumber, methodName);
+		String filteredFileName = fileName;
+		if (filteredFileName != null) {
+			filteredFileName = filteredFileName.replaceAll(".java$", "");
+		} else {
+			filteredFileName = "";
+		}
+		if (className.matches(".*\\." + filteredFileName)) return MessageFormat.format("at {0}.java:{1}:in `{2}''", className, lineNumber, methodName);
 		return MessageFormat.format("at {0}, {1}:{2}:in `{3}''", className, fileName, lineNumber, methodName);
 	}
 

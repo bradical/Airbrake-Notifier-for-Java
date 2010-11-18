@@ -26,7 +26,8 @@ public class HoptoadNotice {
 
 	private String errorClass;
 
-	public HoptoadNotice(final String apiKey, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session, final Map<String, Object> environment, final List<String> environmentFilters) {
+	public HoptoadNotice(final String apiKey, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session,
+			final Map<String, Object> environment, final List<String> environmentFilters) {
 		this.apiKey = apiKey;
 		this.errorClass = errorClass;
 		this.errorMessage = errorMessage;

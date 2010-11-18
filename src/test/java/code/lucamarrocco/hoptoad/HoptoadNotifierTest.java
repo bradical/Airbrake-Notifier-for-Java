@@ -17,8 +17,7 @@ import org.hamcrest.*;
 import org.junit.*;
 
 public class HoptoadNotifierTest {
-
-	public static final String API_KEY = "ff56831ee42b48db0c98d06716e13442";
+	public static final String API_KEY = "a603290b07eab460795acf7001558510";
 
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;
 	protected static final Map<String, Object> REQUEST = new HashMap<String, Object>();
@@ -28,8 +27,6 @@ public class HoptoadNotifierTest {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, Object> EC2 = new HashMap<String, Object>();
-
-	private HoptoadNotify notifierV1;
 
 	private HoptoadNotify notifierV2;
 
@@ -60,7 +57,6 @@ public class HoptoadNotifierTest {
 		EC2.put("EC2_PRIVATE_KEY", "EC2_PRIVATE_KEY");
 		EC2.put("AWS_ACCESS", "AWS_ACCESS");
 		EC2.put("EC2_CERT", "EC2_CERT");
-		notifierV1 = new HoptoadNotifier();
 		notifierV2 = new HoptoadNotifierV2();
 	}
 
@@ -100,8 +96,7 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION, "test").newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -114,16 +109,14 @@ public class HoptoadNotifierTest {
 
 		}.newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
 	public void testNotifyToHoptoadUsingBuilderNoticeInEnv() {
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE, "test").newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -131,8 +124,7 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new QuietRubyBacktrace(), EXCEPTION, "test").newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -140,8 +132,7 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, EXCEPTION).newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -149,8 +140,7 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -158,16 +148,14 @@ public class HoptoadNotifierTest {
 		final Exception EXCEPTION = newException(ERROR_MESSAGE);
 		final HoptoadNotice notice = new HoptoadNoticeBuilderUsingFilterdSystemProperties(API_KEY, new RubyBacktrace(), EXCEPTION, "test").newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
 	public void testSendNoticeToHoptoad() {
 		final HoptoadNotice notice = new HoptoadNoticeBuilder(API_KEY, ERROR_MESSAGE).newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -178,8 +166,7 @@ public class HoptoadNotifierTest {
 			}
 		}.newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 
 	@Test
@@ -190,7 +177,6 @@ public class HoptoadNotifierTest {
 			}
 		}.newNotice();
 
-		assertThat(notifierV1.notify(notice), is(201));
-		assertThat(notifierV2.notify(notice), is(201));
+		assertThat(notifierV2.notify(notice), is(200));
 	}
 }
