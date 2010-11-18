@@ -11,6 +11,8 @@ import org.junit.*;
 
 public class NoticeApi2XmlTest {
 
+	NoticeApi2XmlBuilderTest t;
+	
 	private HoptoadNotice notice;
 
 	private String clean(String string) {
@@ -80,4 +82,5 @@ public class NoticeApi2XmlTest {
 	private String xml(NoticeApi2 noticeApi) {
 		return clean(noticeApi.toString());
 	}
+
 }

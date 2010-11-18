@@ -10,13 +10,15 @@ import java.util.*;
 
 public class HoptoadNotice {
 
-	private static final String RAILS_ENV = "RAILS_ENV";
-
 	private final String apiKey;
 
 	private final String errorMessage;
 
 	private Backtrace backtrace = new Backtrace(asList("backtrace is empty"));
+
+	private String projectRoot;
+
+	private String environmentName;
 
 	private final Map<String, Object> environment = new TreeMap<String, Object>();
 
@@ -26,14 +28,25 @@ public class HoptoadNotice {
 
 	private String errorClass;
 
-	public HoptoadNotice(final String apiKey, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session,
-			final Map<String, Object> environment, final List<String> environmentFilters) {
+	private boolean hasRequest = false;
+
+	private final String url;
+
+	private final String component;
+
+	public HoptoadNotice(final String apiKey, String projectRoot, String environmentName, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request,
+			final Map<String, Object> session, final Map<String, Object> environment, final List<String> environmentFilters, boolean hasRequest, String url, String component) {
 		this.apiKey = apiKey;
+		this.projectRoot = projectRoot;
+		this.environmentName = environmentName;
 		this.errorClass = errorClass;
 		this.errorMessage = errorMessage;
 		this.backtrace = backtrace;
 		this.request = request;
 		this.session = session;
+		this.hasRequest = hasRequest;
+		this.url = url;
+		this.component = component;
 		filter(environment, environmentFilters);
 	}
 
@@ -46,7 +59,7 @@ public class HoptoadNotice {
 	}
 
 	public String env() {
-		return (String) environment.get(RAILS_ENV);
+		return environmentName;
 	}
 
 	public Map<String, Object> environment() {
@@ -82,5 +95,21 @@ public class HoptoadNotice {
 
 	public Map<String, Object> session() {
 		return session;
+	}
+
+	public boolean hasRequest() {
+		return hasRequest;
+	}
+
+	public String url() {
+		return url;
+	}
+
+	public String component() {
+		return component;
+	}
+
+	public String projectRoot() {
+		return projectRoot;
 	}
 }

@@ -5,12 +5,13 @@
 package code.lucamarrocco.hoptoad;
 
 import static code.lucamarrocco.hoptoad.Exceptions.*;
-import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
 import static code.lucamarrocco.hoptoad.Slurp.*;
+import static code.lucamarrocco.hoptoad.ValidBacktraces.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.*;
+import java.util.regex.*;
 
 import org.apache.commons.lang.exception.*;
 import org.junit.*;
@@ -32,6 +33,15 @@ public class BacktraceTest {
 		final Iterable<String> backtrace = new RubyBacktrace(EXCEPTION);
 
 		assertThat(backtrace, hasItem("at code.lucamarrocco.hoptoad.Exceptions.java:15:in `newException'"));
+	}
+
+	@Test
+	public void testEscapesExceptionClassName() {
+		try {
+			new Backtrace(new Exception("com.banana.MyClass{junk}"));
+		} catch (PatternSyntaxException e) {
+			fail("Throwing a pattern syntax exception means the class name might not have been escaped properly");
+		}
 	}
 
 	@Test
@@ -281,12 +291,13 @@ public class BacktraceTest {
 
 	@Test
 	public void testNotValidaBacktrace() {
-		assertThat("Caused by: java.lang.NullPointerException", is(not(validBacktrace())));
+		String string = "Caused by: java.lang.NullPointerException";
+		assertFalse(isValidBacktrace(string));
 	}
 
 	@Test
 	public void testValidaBacktrace() {
-		assertThat("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)", is(validBacktrace()));
-		assertThat("vendors/rails/actionpack/lib/action_controller/filter.rb:579:in `call_filters'", is(validBacktrace()));
+		assertTrue(isValidBacktrace("at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)"));
+		assertTrue(isValidBacktrace("vendors/rails/actionpack/lib/action_controller/filter.rb:579:in `call_filters'"));
 	}
 }

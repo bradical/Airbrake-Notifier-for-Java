@@ -6,6 +6,8 @@ package code.lucamarrocco.hoptoad;
 
 import static java.text.MessageFormat.*;
 
+import org.apache.commons.lang.*;
+
 public class BacktraceLine {
 
 	private final String className;
@@ -37,15 +39,16 @@ public class BacktraceLine {
 		this.methodName = methodName;
 	}
 
-	public String className() {
+	// exposed for unit testing
+	String className() {
 		return className;
 	}
 
-	public String fileName() {
+	String fileName() {
 		return fileName;
 	}
 
-	public int lineNumber() {
+	int lineNumber() {
 		return lineNumber;
 	}
 
@@ -71,6 +74,7 @@ public class BacktraceLine {
 	}
 
 	public String toXml() {
-		return format("<line method=\"{0}.{1}\" file=\"{2}\" number=\"{3}\"/>", className, methodName, fileName, lineNumber);
+		return format("<line method=\"{0}.{1}\" file=\"{2}\" number=\"{3}\"/>", StringEscapeUtils.escapeXml(className), StringEscapeUtils.escapeXml(methodName), StringEscapeUtils.escapeXml(fileName),
+				lineNumber);
 	}
 }

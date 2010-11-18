@@ -7,7 +7,7 @@ package code.lucamarrocco.hoptoad;
 import java.io.*;
 import java.net.*;
 
-public class HoptoadNotifier implements HoptoadNotify {
+public class HoptoadNotifier {
 
 	private void addingProperties(final HttpURLConnection connection) throws ProtocolException {
 		connection.setDoOutput(true);
@@ -16,7 +16,7 @@ public class HoptoadNotifier implements HoptoadNotify {
 		connection.setRequestMethod("POST");
 	}
 
-	private HttpURLConnection createConnection() throws IOException, MalformedURLException {
+	private HttpURLConnection createConnection() throws IOException {
 		final HttpURLConnection connection = (HttpURLConnection) new URL("http://hoptoadapp.com/notifier_api/v2/notices").openConnection();
 		return connection;
 	}
@@ -30,7 +30,8 @@ public class HoptoadNotifier implements HoptoadNotify {
 		try {
 			final HttpURLConnection toHoptoad = createConnection();
 			addingProperties(toHoptoad);
-			return send(new NoticeApi2(notice).toString(), toHoptoad);
+			String toPost = new NoticeApi2(notice).toString();
+			return send(toPost, toHoptoad);
 		} catch (final Exception e) {
 			err(notice, e);
 		}

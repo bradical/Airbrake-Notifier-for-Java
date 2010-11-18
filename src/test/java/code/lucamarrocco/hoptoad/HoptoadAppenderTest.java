@@ -5,17 +5,17 @@
 package code.lucamarrocco.hoptoad;
 
 import static code.lucamarrocco.hoptoad.Exceptions.*;
-import static code.lucamarrocco.hoptoad.HoptoadNotifierTest.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import org.junit.*;
 
+import static code.lucamarrocco.hoptoad.ApiKeys.*;
 public class HoptoadAppenderTest {
 
 	@Test
 	public void testNewAppenderWithApiKey() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY);
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY);
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -24,7 +24,7 @@ public class HoptoadAppenderTest {
 
 	@Test
 	public void testNewAppenderWithApiKeyAndBacktrace() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY, new Backtrace());
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY, new Backtrace());
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -33,7 +33,7 @@ public class HoptoadAppenderTest {
 
 	@Test
 	public void testNotyfyThrowable() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY);
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY);
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -44,7 +44,7 @@ public class HoptoadAppenderTest {
 
 	@Test
 	public void testNotyfyThrowable$UseBacktrace() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY, new Backtrace());
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY, new Backtrace());
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -58,7 +58,7 @@ public class HoptoadAppenderTest {
 
 	@Test
 	public void testNotyfyThrowable$UseQuiteBacktrace() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY, new QuietRubyBacktrace());
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY, new QuietRubyBacktrace());
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -69,7 +69,7 @@ public class HoptoadAppenderTest {
 
 	@Test
 	public void testNotyfyThrowable$UseRubyBacktrace() {
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY, new RubyBacktrace());
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY, new RubyBacktrace());
 
 		final HoptoadNotice notice = appender.newNoticeFor(newException(ERROR_MESSAGE));
 
@@ -81,7 +81,7 @@ public class HoptoadAppenderTest {
 	@Test
 	public void testNotyfyThrowable$UseSwitchBacktrace() {
 		final SwitchBacktrace switchBacktrace = new SwitchBacktrace();
-		final HoptoadAppender appender = new HoptoadAppender(API_KEY, switchBacktrace);
+		final HoptoadAppender appender = new HoptoadAppender(TEST_API_KEY, switchBacktrace);
 
 		switchBacktrace.quiet();
 		final HoptoadNotice quietNotice = appender.newNoticeFor(newException(ERROR_MESSAGE));

@@ -4,6 +4,11 @@
 
 package code.lucamarrocco.hoptoad;
 
+import java.util.*;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang.*;
+
 public class NoticeApi2 {
 
 	private final StringBuilder stringBuilder = new StringBuilder();
@@ -36,13 +41,48 @@ public class NoticeApi2 {
 			}
 			end("error");
 
+			if (notice.hasRequest()) {
+				addRequest(notice);
+			}
+
 			server_environment();
 			{
+				tag("project-root", notice.projectRoot());
 				tag("environment-name", notice.env());
 			}
-			end("server_environment");
+			end("server-environment");
 		}
 		end("notice");
+	}
+
+	private void addRequest(HoptoadNotice notice) {
+		request();
+		{
+			tag("url", notice.url());
+			tag("component", notice.component());
+			vars("params", notice.request());
+			vars("session", notice.session());
+			vars("cgi-data", notice.environment());
+		}
+		end("request");
+	}
+
+	private void vars(String sectionName, Map<String, Object> vars) {
+		if (vars.isEmpty()) {
+			return;
+		}
+
+		tag(sectionName);
+		for (Entry<String, Object> var : vars.entrySet()) {
+			append("<var key=\"" + var.getKey() + "\">");
+			text(var.getValue().toString());
+			append("</var>");
+		}
+		end(sectionName);
+	}
+
+	private void request() {
+		tag("request");
 	}
 
 	private void apikey(HoptoadNotice notice) {
@@ -90,27 +130,17 @@ public class NoticeApi2 {
 		tag("notifier");
 	}
 
-	private void notifier(String name, String version, String url) {
-		notifier();
-		{
-			name(name);
-			version(version);
-			url(url);
-		}
-		end("notifier");
-	}
-
 	private NoticeApi2 tag(String string) {
 		append("<" + string + ">");
 		return this;
 	}
 
-	private void tag(String string, String name2) {
-		tag(string).text(name2).end(string);
+	private void tag(String string, String contents) {
+		tag(string).text(contents).end(string);
 	}
 
 	private NoticeApi2 text(String string) {
-		append(string);
+		append(StringEscapeUtils.escapeXml(string));
 		return this;
 	}
 

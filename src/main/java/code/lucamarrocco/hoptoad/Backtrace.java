@@ -4,11 +4,11 @@
 
 package code.lucamarrocco.hoptoad;
 
-import static code.lucamarrocco.hoptoad.IsValidBacktrace.*;
-import static org.hamcrest.Matchers.*;
-
 import java.text.*;
+
+import static code.lucamarrocco.hoptoad.ValidBacktraces.*;
 import java.util.*;
+import java.util.regex.*;
 
 public class Backtrace implements Iterable<String> {
 
@@ -28,7 +28,7 @@ public class Backtrace implements Iterable<String> {
 
 	public Backtrace(final Throwable throwable) {
 		toBacktrace(throwable);
-		ignore(".*" + messageIn(throwable) + ".*");
+		ignore(".*" + Pattern.quote(messageIn(throwable)) + ".*");
 		ignore();
 		filter();
 	}
@@ -48,7 +48,7 @@ public class Backtrace implements Iterable<String> {
 			if (mustBeIgnored(string)) {
 				continue;
 			}
-			if (not(validBacktrace()).matches(string)) {
+			if (notValidBacktrace(string)) {
 				string = removeDobuleDot(string);
 			}
 			filteredBacktrace.add(string);
