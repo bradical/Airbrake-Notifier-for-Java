@@ -2,10 +2,8 @@ package hoptoad;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import hoptoad.*;
 
 import org.junit.*;
-
 
 public class HoptoadNoticeBuilderTest {
 

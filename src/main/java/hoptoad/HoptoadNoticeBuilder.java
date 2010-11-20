@@ -155,7 +155,8 @@ public class HoptoadNoticeBuilder {
 	}
 
 	public HoptoadNotice newNotice() {
-		return new HoptoadNotice(apiKey, projectRoot, environmentName, errorMessage, errorClass, backtrace, request, session, environment, environmentFilters, hasRequest, url, component);
+		return new HoptoadNotice(apiKey, projectRoot, environmentName, errorMessage, errorClass, backtrace, request, session, environment, environmentFilters,
+				hasRequest, url, component);
 	}
 
 	private boolean notDefined(final Object object) {

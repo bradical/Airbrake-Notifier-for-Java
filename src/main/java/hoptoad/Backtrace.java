@@ -4,10 +4,9 @@
 
 package hoptoad;
 
-import java.text.*;
-
 import static hoptoad.ValidBacktraces.*;
 
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 

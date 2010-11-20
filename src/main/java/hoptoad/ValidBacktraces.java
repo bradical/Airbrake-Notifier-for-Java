@@ -5,7 +5,7 @@
 package hoptoad;
 
 public class ValidBacktraces {
-	
+
 	public static boolean isValidBacktrace(String string) {
 		return string.matches("[^:]*:\\d+.*");
 	}

@@ -6,15 +6,13 @@ package hoptoad;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import hoptoad.*;
 
 import org.junit.*;
-
 
 public class NoticeApi2XmlTest {
 
 	NoticeApi2XmlBuilderTest t;
-	
+
 	private HoptoadNotice notice;
 
 	private String clean(String string) {

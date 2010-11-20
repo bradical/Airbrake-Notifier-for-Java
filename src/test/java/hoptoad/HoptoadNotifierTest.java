@@ -10,17 +10,14 @@ import static java.util.Arrays.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import hoptoad.*;
-
 import java.util.*;
 
 import org.apache.commons.logging.*;
 import org.hamcrest.*;
 import org.junit.*;
 
-
 public class HoptoadNotifierTest {
-	
+
 	public static final String API_KEY = "a603290b07eab460795acf7001558510";
 
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;

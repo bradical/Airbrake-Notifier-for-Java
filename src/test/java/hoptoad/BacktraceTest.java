@@ -10,14 +10,11 @@ import static hoptoad.ValidBacktraces.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import hoptoad.*;
-
 import java.util.*;
 import java.util.regex.*;
 
 import org.apache.commons.lang.exception.*;
 import org.junit.*;
-
 
 public class BacktraceTest {
 
@@ -102,11 +99,13 @@ public class BacktraceTest {
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.template.script.event.StartElement.execute(StartElement.java:115)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.template.instruction.Call.execute(Call.java:143)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.template.JXTemplateGenerator.performGeneration(JXTemplateGenerator.java:117)")));
-		assertThat(backtrace, not(hasItem("org.apache.cocoon.components.pipeline.AbstractProcessingPipeline.processXMLPipeline(AbstractProcessingPipeline.java:578)")));
+		assertThat(backtrace,
+				not(hasItem("org.apache.cocoon.components.pipeline.AbstractProcessingPipeline.processXMLPipeline(AbstractProcessingPipeline.java:578)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.components.treeprocessor.sitemap.SerializeNode.invoke(SerializeNode.java:120)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.environment.ForwardRedirector.redirect(ForwardRedirector.java:59)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.components.flow.AbstractInterpreter.forwardTo(AbstractInterpreter.java:209)")));
-		assertThat(backtrace, not(hasItem("org.apache.cocoon.components.flow.javascript.fom.FOM_JavaScriptInterpreter.forwardTo(FOM_JavaScriptInterpreter.java:905)")));
+		assertThat(backtrace,
+				not(hasItem("org.apache.cocoon.components.flow.javascript.fom.FOM_JavaScriptInterpreter.forwardTo(FOM_JavaScriptInterpreter.java:905)")));
 		assertThat(backtrace, not(hasItem("org.apache.cocoon.components.flow.javascript.fom.FOM_Cocoon.forwardTo(FOM_Cocoon.java:698)")));
 		assertThat(backtrace, not(hasItem("org.apache.commons.jexl.util.introspection.UberspectImpl$VelMethodImpl.invoke(UberspectImpl.java:268)")));
 		assertThat(backtrace, not(hasItem("org.apache.commons.jexl.parser.ASTMethod.execute(ASTMethod.java:61)")));
@@ -259,18 +258,25 @@ public class BacktraceTest {
 			}
 		};
 
-		assertThat(backtrace, not(hasItem("org.springframework.security.context.HttpSessionContextIntegrationFilter.doFilterHttp(HttpSessionContextIntegrationFilter.java:235)")));
+		assertThat(
+				backtrace,
+				not(hasItem("org.springframework.security.context.HttpSessionContextIntegrationFilter.doFilterHttp(HttpSessionContextIntegrationFilter.java:235)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.intercept.web.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:83)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.providers.anonymous.AnonymousProcessingFilter.doFilterHttp(AnonymousProcessingFilter.java:105)")));
+		assertThat(backtrace,
+				not(hasItem("org.springframework.security.providers.anonymous.AnonymousProcessingFilter.doFilterHttp(AnonymousProcessingFilter.java:105)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.ui.AbstractProcessingFilter.doFilterHttp(AbstractProcessingFilter.java:271)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.ui.basicauth.BasicProcessingFilter.doFilterHttp(BasicProcessingFilter.java:173)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.ui.ExceptionTranslationFilter.doFilterHttp(ExceptionTranslationFilter.java:101)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.ui.logout.LogoutFilter.doFilterHttp(LogoutFilter.java:89)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.rememberme.RememberMeProcessingFilter.doFilterHttp(RememberMeProcessingFilter.java:116)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SessionFixationProtectionFilter.doFilterHttp(SessionFixationProtectionFilter.java:67)")));
+		assertThat(backtrace,
+				not(hasItem("org.springframework.security.ui.rememberme.RememberMeProcessingFilter.doFilterHttp(RememberMeProcessingFilter.java:116)")));
+		assertThat(backtrace,
+				not(hasItem("org.springframework.security.ui.SessionFixationProtectionFilter.doFilterHttp(SessionFixationProtectionFilter.java:67)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.ui.SpringSecurityFilter.doFilter(SpringSecurityFilter.java:53)")));
 		assertThat(backtrace, not(hasItem("org.springframework.security.util.FilterChainProxy.doFilter(FilterChainProxy.java:174)")));
-		assertThat(backtrace, not(hasItem("org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter.doFilterHttp(SecurityContextHolderAwareRequestFilter.java:91)")));
+		assertThat(
+				backtrace,
+				not(hasItem("org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter.doFilterHttp(SecurityContextHolderAwareRequestFilter.java:91)")));
 		assertThat(backtrace, not(hasItem("org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:167)")));
 	}
 

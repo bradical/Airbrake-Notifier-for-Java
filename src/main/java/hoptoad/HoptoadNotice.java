@@ -34,8 +34,9 @@ public class HoptoadNotice {
 
 	private final String component;
 
-	public HoptoadNotice(final String apiKey, String projectRoot, String environmentName, final String errorMessage, String errorClass, final Backtrace backtrace, final Map<String, Object> request,
-			final Map<String, Object> session, final Map<String, Object> environment, final List<String> environmentFilters, boolean hasRequest, String url, String component) {
+	public HoptoadNotice(final String apiKey, String projectRoot, String environmentName, final String errorMessage, String errorClass,
+			final Backtrace backtrace, final Map<String, Object> request, final Map<String, Object> session, final Map<String, Object> environment,
+			final List<String> environmentFilters, boolean hasRequest, String url, String component) {
 		this.apiKey = apiKey;
 		this.projectRoot = projectRoot;
 		this.environmentName = environmentName;

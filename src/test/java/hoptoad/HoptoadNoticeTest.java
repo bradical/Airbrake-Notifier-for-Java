@@ -10,13 +10,10 @@ import static java.util.Arrays.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import hoptoad.*;
-
 import java.util.*;
 
 import org.apache.commons.logging.*;
 import org.junit.*;
-
 
 public class HoptoadNoticeTest {
 	protected static final Backtrace BACKTRACE = new Backtrace(asList("backtrace is empty"));;

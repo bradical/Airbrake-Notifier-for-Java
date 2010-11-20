@@ -4,15 +4,13 @@
 
 package hoptoad;
 
+import static hoptoad.ApiKeys.*;
+import static hoptoad.Exceptions.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import hoptoad.*;
 
 import org.junit.*;
 
-
-import static hoptoad.ApiKeys.*;
-import static hoptoad.Exceptions.*;
 public class HoptoadAppenderTest {
 
 	@Test
