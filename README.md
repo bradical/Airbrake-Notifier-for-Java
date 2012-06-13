@@ -2,6 +2,8 @@
 
 A project to send error messages to the [Airbrake](http://airbrake.io) reporting service either manually or using a log4j appender
 
+This is a [fork of a this project](http://code.google.com/p/hoptoad/) on Google Code that has been updated to work with Airbrake's new URL.
+
 ### License
 
 Copyright 2012 Bradley Wagner
