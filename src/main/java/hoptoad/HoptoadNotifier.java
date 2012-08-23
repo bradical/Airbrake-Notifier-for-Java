@@ -23,7 +23,7 @@ public class HoptoadNotifier
 
     private HttpURLConnection createConnection() throws IOException
     {
-        final HttpURLConnection connection = (HttpURLConnection) new URL("http://airbrakeapp.com/notifier_api/v2/notices").openConnection();
+        final HttpURLConnection connection = (HttpURLConnection) new URL("http://api.airbrake.io/notifier_api/v2/notices").openConnection();
         return connection;
     }
 
